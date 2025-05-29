@@ -46,26 +46,26 @@ def passo(df_ordenado, passo, vo, ch):
         condicao = (df_ordenado['ch'] == 0) & (df_ordenado['vagaSelecionada'].str.len() == 0) & (df_ordenado['vagaGarantida'].str.len() == 0) & (df_ordenado['Cota do candidato'] != 'AC')
         cotaSelecionada = "LI_EP"
     elif passo == 3:
-        cotaSelecionada = "LI_PCD"
         condicao = (df_ordenado['ch'] == 0) & (df_ordenado['vagaSelecionada'].str.len() == 0) & (df_ordenado['vagaGarantida'].str.len() == 0) & ((df_ordenado['Cota do candidato'] == 'LI_PCD') | (df_ordenado['Cota do candidato'] == 'LB_PCD'))
+        cotaSelecionada = "LI_PCD"
     elif passo == 4:
-        cotaSelecionada = "LI_Q"
         condicao = (df_ordenado['ch'] == 0) & (df_ordenado['vagaSelecionada'].str.len() == 0) & (df_ordenado['vagaGarantida'].str.len() == 0) & ((df_ordenado['Cota do candidato'] == 'LI_Q') | (df_ordenado['Cota do candidato'] == 'LB_Q'))
+        cotaSelecionada = "LI_Q"
     elif passo == 5:
-        cotaSelecionada = "LI_PPI"
         condicao = (df_ordenado['ch'] == 0) & (df_ordenado['vagaSelecionada'].str.len() == 0) & (df_ordenado['vagaGarantida'].str.len() == 0) & ((df_ordenado['Cota do candidato'] == 'LI_PPI') | (df_ordenado['Cota do candidato'] == 'LB_PPI'))
+        cotaSelecionada = "LI_PPI"
     elif passo == 6:
-        cotaSelecionada = "LB_EP"
         condicao = (df_ordenado['ch'] == 0) & (df_ordenado['vagaSelecionada'].str.len() == 0) & (df_ordenado['vagaGarantida'].str.len() == 0) & ((df_ordenado['Cota do candidato'] == 'LB_EP') | (df_ordenado['Cota do candidato'] == 'LB_PCD') | (df_ordenado['Cota do candidato'] == 'LB_Q') | (df_ordenado['Cota do candidato'] == 'LB_PPI'))
+        cotaSelecionada = "LB_EP"
     elif passo == 7:
-        cotaSelecionada = "LB_PCD" # [VERIFICAR] Acredito que esteja errado
-        condicao = (df_ordenado['ch'] == 0) & (df_ordenado['vagaSelecionada'].str.len() == 0) & (df_ordenado['vagaGarantida'].str.len() == 0) & ((df_ordenado['Cota do candidato'] == 'LB_PCD') | (df_ordenado['Cota do candidato'] == 'LI_PCD'))
+        condicao = (df_ordenado['ch'] == 0) & (df_ordenado['vagaSelecionada'].str.len() == 0) & (df_ordenado['vagaGarantida'].str.len() == 0) & ((df_ordenado['Cota do candidato'] == 'LB_PCD'))
+        cotaSelecionada = "LB_PCD" 
     elif passo == 8:
-        cotaSelecionada = "LB_Q"
         condicao = (df_ordenado['ch'] == 0) & (df_ordenado['vagaSelecionada'].str.len() == 0) & (df_ordenado['vagaGarantida'].str.len() == 0) & ((df_ordenado['Cota do candidato'] == 'LB_Q'))
+        cotaSelecionada = "LB_Q"
     elif passo == 9:
-        cotaSelecionada = "LB_PPI"
         condicao = (df_ordenado['ch'] == 0) & (df_ordenado['vagaSelecionada'].str.len() == 0) & (df_ordenado['vagaGarantida'].str.len() == 0) & ((df_ordenado['Cota do candidato'] == 'LB_PPI'))
+        cotaSelecionada = "LB_PPI"
 
     indices_preencher = df_ordenado[condicao].head(vo).index # Filtra os índices que atendem a condição e seleciona os primeiros 'vo' candidatos
     tl = len(condicao[condicao == True]) # Contagem do total de candidatos que atendem a condição
