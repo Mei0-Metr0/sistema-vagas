@@ -1,0 +1,84 @@
+/* ===== ESTILOS GERAIS ===== */
+body {
+    background-color: #f8f9fa;
+    padding-bottom: 50px;
+}
+
+/* ===== COMPONENTE CARD ===== */
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.card-header {
+    background-color: #f1f8ff;
+    font-weight: bold;
+}
+
+/* ===== COMPONENTE TABELA ===== */
+.table-responsive {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+/* Tabelas específicas */
+.csv-preview table, 
+.candidatos-chamados {
+    font-size: 0.9rem;
+}
+
+.csv-preview th, .csv-preview td, 
+.candidatos-chamados th, .candidatos-chamados td {
+    padding: 0.3rem;
+}
+
+/* Tabela ordenável */
+.table-sortable th {
+    cursor: pointer;
+    position: relative;
+    user-select: none;
+}
+
+.table-sortable th.sort-asc::after {
+    content: "↑";
+    position: absolute;
+    right: 8px;
+}
+
+.table-sortable th.sort-desc::after {
+    content: "↓";
+    position: absolute;
+    right: 8px;
+}
+
+/* Linhas da tabela */
+tr.table-success {
+    background-color: rgba(40, 167, 69, 0.1);
+    transition: background-color 3s ease-out;
+}
+
+tr.removing {
+    animation: fadeOut 0.5s forwards;
+}
+
+/* ===== ANIMAÇÕES ===== */
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; height: 0; padding: 0; margin: 0; }
+}
+
+/* ===== RESPONSIVIDADE ===== */
+@media (max-width: 768px) {
+    .table-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .filter-options {
+        margin-top: 10px;
+        width: 100%;
+    }
+    
+    .filter-cota {
+        width: 100% !important;
+    }
+}
