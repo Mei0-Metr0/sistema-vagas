@@ -24,11 +24,23 @@ const CsvUploadSection = () => {
       return;
     }
 
+    console.info('Uploading file:', file.name);
+    console.info('File size:', file.size);
+    console.info('File type:', file.type);
+    console.info('Content:', file);
+
     const formData = new FormData();
     formData.append('file', file);
 
     try {
-      const data = await request('/upload_csv', 'POST', formData, true);
+      const data = await request({
+        endpoint: '/chamadas/upload',
+        method: 'POST',
+        data: formData,
+        isFormData: true
+      });
+
+      console.log('Upload response:', data);
       
       if (data.status === 'success') {
         setStatus({ 

@@ -30,7 +30,12 @@ const CotaDistributionForm = ({ onConfirm }) => {
 
   const handleConfirm = async () => {
     try {
-      const data = await request('/confirmar_vagas', 'POST', cotas);
+      const data = await request({
+        endpoint: '/chamadas/definir-vagas',
+        method: 'POST',
+        data: cotas,
+        isFormData: false
+      });
       
       if (data.status === 'success') {
         setStatus({ message: 'Distribuição de vagas confirmada!', type: 'success' });

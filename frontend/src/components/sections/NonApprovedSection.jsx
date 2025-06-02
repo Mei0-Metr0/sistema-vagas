@@ -73,8 +73,11 @@ const NonApprovedSection = () => {
     }
 
     try {
-      const data = await request('/marcar_nao_homologados', 'POST', { 
-        nao_homologados_cpfs: nonApprovedCpfs 
+      const data = await request({
+        endpoint: '/chamadas/marcar-nao-homologados',
+        method: 'POST',
+        data: nonApprovedCpfs,
+        isFormData: false,
       });
       
       if (data.status === 'success') {
@@ -94,8 +97,11 @@ const NonApprovedSection = () => {
 
   const handleSkipApproval = async () => {
     try {
-      const data = await request('/marcar_nao_homologados', 'POST', { 
-        nao_homologados_cpfs: [] 
+      const data = await request({
+        endpoint: '/chamadas/marcar-nao-homologados',
+        method: 'POST',
+        data: [],
+        isFormData: false,
       });
       
       if (data.status === 'success') {

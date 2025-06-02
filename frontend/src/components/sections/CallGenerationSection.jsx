@@ -14,7 +14,11 @@ const CallGenerationSection = () => {
   
   const handleGenerateCall = async (multiplier) => {
     try {
-      const data = await request('/gerar_chamada', 'POST', { fator_multiplicacao: multiplier });
+      const data = await request({
+        endpoint: '/chamadas/gerar-chamada',
+        method: 'POST',
+        data: { fator_multiplicacao: multiplier }
+      });
       
       if (data.status === 'success') {
         setStatus({ 
