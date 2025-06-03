@@ -1,5 +1,4 @@
-from typing import Tuple, List, Dict, Optional
-import pandas as pd
+from typing import Tuple, List, Dict, Any
 from domain.entities import (
     Candidato, Vagas, ChamadaResult, CandidatoCreate
 )
@@ -221,7 +220,7 @@ class ChamadaService:
             chamada_num=chamada_num
         )
 
-    def marcar_nao_homologados(self, cpfs: List[str]) -> Dict[TipoCota, int]:
+    def marcar_nao_homologados(self, cpfs: List[str]) -> List[Dict[str, Any]]:
         """Marca candidatos como não homologados e recalcula vagas"""
         for cpf in cpfs:
             candidato = self.repo.get_candidato_by_cpf(cpf)
@@ -234,26 +233,42 @@ class ChamadaService:
         
         return self._calcular_vagas_disponiveis()
 
-    def _calcular_vagas_disponiveis(self) -> Dict[TipoCota, int]:
+    def _calcular_vagas_disponiveis(self) -> List[Dict[str, Any]]:
         """Calcula vagas disponíveis após não homologações"""
-        vagas_originais = self.repo.get_vagas_originais()
-        if not vagas_originais:
+        vagas_originais_model = self.repo.get_vagas_originais()
+        if not vagas_originais_model:
             raise ValidationException("Vagas não definidas")
         
-        vagas_ocupadas = {cota: 0 for cota in TipoCota}
+        vagas_ocupadas: Dict[TipoCota, int] = {cota: 0 for cota in TipoCota}
         candidatos = self.repo.list_candidatos()
         
-        for cota in TipoCota:
-            vagas_ocupadas[cota] = len([
+        for cota_enum in TipoCota:
+            vagas_ocupadas[cota_enum] = len([
                 c for c in candidatos
-                if c.vaga_selecionada == cota
+                if c.vaga_selecionada == cota_enum
                 and c.status == StatusCandidato.SELECIONADO
             ])
         
-        return {
-            cota: max(0, getattr(vagas_originais, cota.value) - vagas_ocupadas[cota])
-            for cota in TipoCota
-        }
+        vagas_originais_dict = vagas_originais_model.dict()
+        available_vacancies_list = []
+
+        for cota_enum in TipoCota:
+            cota_str = cota_enum.value # e.g., "AC"
+            
+            # Obtém o número de vagas originais para a cota atual
+            orig_vacancies = vagas_originais_dict.get(cota_str, 0)
+            
+            # Obtém o número de vagas ocupadas para a cota atual
+            occupied_vacancies = vagas_ocupadas.get(cota_enum, 0)
+            
+            disponiveis = max(0, orig_vacancies - occupied_vacancies)
+            
+            available_vacancies_list.append({
+                "Cota": cota_str,
+                "Vagas Originais": orig_vacancies,
+                "Vagas Disponíveis": disponiveis
+            })
+        return available_vacancies_list
 
     def listar_candidatos_chamada(self, chamada_num: int) -> List[Candidato]:
         """Lista candidatos de uma chamada específica"""

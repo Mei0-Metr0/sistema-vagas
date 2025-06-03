@@ -1,5 +1,7 @@
 const VacanciesTable = ({ data, headers }) => {
-  if (!data || data.length === 0) return null;
+  if (!Array.isArray(data) || data.length === 0) {
+    return null;
+  }
 
   return (
     <div className="table-responsive">
@@ -15,7 +17,9 @@ const VacanciesTable = ({ data, headers }) => {
           {data.map((item, index) => (
             <tr key={index}>
               {headers.map(header => (
-                <td key={`${index}-${header}`}>{item[header]}</td>
+                <td key={`${index}-${header}`}>
+                  {item && item[header] !== undefined ? item[header] : ''}
+                </td>
               ))}
             </tr>
           ))}
