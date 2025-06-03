@@ -1,19 +1,21 @@
 from fastapi import APIRouter, Depends, UploadFile, File, HTTPException
 from typing import List, Optional
 
+import pandas as pd
+
 from fastapi.responses import StreamingResponse
 from api.dependencies import get_chamada_service, get_file_service
 from services.chamada_service import ChamadaService
 from services.file_service import FileService
 from domain.entities import (
-    Vagas, ChamadaResult, Candidato, FileUploadResponse
+    Vagas, ChamadaResult, Candidato, FileUploadResponse, UploadSuccessResponse 
 )
 from core.exceptions import InvalidFileException
 import io
 
 router = APIRouter(prefix="/chamadas", tags=["chamadas"])
 
-@router.post("/upload", response_model=FileUploadResponse, summary="Upload de arquivo CSV")
+@router.post("/upload", response_model=UploadSuccessResponse, summary="Upload de arquivo CSV") 
 async def upload_csv(
     file: UploadFile = File(...),
     file_service: FileService = Depends(get_file_service),
@@ -25,16 +27,21 @@ async def upload_csv(
         records = file_service.process_csv(content)
         candidatos = file_service.convert_to_candidatos(records)
         total = chamada_service.carregar_candidatos(candidatos)
-        
-        return FileUploadResponse(
-            filename=file.filename,
-            size=len(content),
-            content_type=file.content_type,
-            records_processed=total
-        )
+
+        return {
+            "status": "success",
+            "data": FileUploadResponse(
+                filename=file.filename,
+                size=len(content),
+                content_type=file.content_type,
+                records_processed=total
+            )
+        }
     except InvalidFileException as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
+        import logging
+        logging.exception("Erro interno no upload_csv")
         raise HTTPException(status_code=500, detail=f"Erro interno: {str(e)}")
 
 @router.post("/definir-vagas", summary="Definir quantidade de vagas por cota")

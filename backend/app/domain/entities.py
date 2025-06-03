@@ -12,7 +12,7 @@ class CandidatoCreate(CandidatoBase):
     cota: TipoCota
 
 class Candidato(CandidatoBase):
-    id: Optional[str] = None
+    id: Optional[int] = None
     nota_final: float
     cota: TipoCota
     vaga_selecionada: Optional[TipoCota] = None
@@ -45,3 +45,7 @@ class FileUploadResponse(BaseModel):
     size: int
     content_type: str
     records_processed: int
+
+class UploadSuccessResponse(BaseModel):
+    status: str
+    data: FileUploadResponse

@@ -16,8 +16,7 @@ export const api = {
     if (data) {
       if (isFormData) {
         options.body = data;
-        // Para FormData, o navegador define o Content-Type automaticamente,
-        // incluindo o 'boundary' necessário. Não o defina manualmente.
+        // Para FormData, o navegador define o Content-Type automaticamente.
       } else {
         options.headers['Content-Type'] = 'application/json';
         options.body = JSON.stringify(data);
@@ -25,13 +24,25 @@ export const api = {
     }
 
     const response = await fetch(url, options);
+    let responseData;
 
-    if (!response.ok) {
-      throw new Error(responseData.message || 'Request failed');
+    try {
+      responseData = await response.json();
+    } catch (e) {
+      if (!response.ok) {
+        throw new Error(response.statusText || `Request failed with status ${response.status}`);
+      }
     }
 
-    const responseData = await response.json();
+    if (!response.ok) {
+      const errorMessage = responseData && responseData.detail
+                           ? responseData.detail
+                           : (responseData && responseData.message
+                             ? responseData.message
+                             : `Request failed with status ${response.status}. No specific error message provided.`);
+      throw new Error(errorMessage);
+    }
 
     return responseData;
   }
-};
+};  
