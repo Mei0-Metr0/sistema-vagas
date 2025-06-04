@@ -82,3 +82,167 @@ tr.removing {
         width: 100% !important;
     }
 }
+/* Estilos Ultra-Compactos e Minimalistas para a Seção de Distribuição de Cotas */
+/* Aplicar a um container com a classe '.vacancy-distribution-section' */
+
+/* Card da Seção */
+.vacancy-distribution-section .card {
+  background-color: #ffffff;
+  border: 1px solid #f0f0f0; /* Borda ainda mais sutil */
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03); /* Sombra mínima */
+  border-radius: 6px; /* Bordas levemente arredondadas */
+  margin-bottom: 1.75rem; /* Espaçamento reduzido */
+}
+
+/* Cabeçalho do Card */
+.vacancy-distribution-section .card-header {
+  background-color: #fafafa;
+  border-bottom: 1px solid #f5f5f5; /* Linha divisória muito clara */
+  padding: 1rem 1.5rem; /* Preenchimento reduzido */
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+  display: flex; /* Adicionado para alinhar título e botão */
+  justify-content: space-between; /* Coloca espaço entre título e botão */
+  align-items: center; /* Alinha verticalmente ao centro */
+}
+
+.vacancy-distribution-section .card-header h2 {
+  font-size: 1.5rem; /* Tamanho de fonte bem compacto */
+  color: #333; /* Cor de texto escura, mas não totalmente preta */
+  margin-bottom: 0; /* Removido margin-bottom pois o flex cuida do alinhamento */
+  font-weight: 500;
+}
+
+/* Corpo do Card */
+.vacancy-distribution-section .card-body {
+  padding: 1.5rem; /* Preenchimento interno reduzido */
+}
+
+/* Labels do Formulário */
+.vacancy-distribution-section .form-label {
+  font-weight: 400;
+  color: #666; /* Cinza um pouco mais escuro para contraste sutil */
+  margin-bottom: 0.3rem; /* Espaçamento mínimo */
+  font-size: 0.825rem; /* Tamanho de fonte bem pequeno (aprox. 13px) */
+}
+
+/* Controles de Formulário (Inputs) */
+.vacancy-distribution-section .form-control {
+  border-radius: 4px; /* Bordas mais justas */
+  border: 1px solid #e0e0e0; /* Borda sutil */
+  padding: 0.6rem 0.8rem; /* Preenchimento bem compacto */
+  font-size: 0.875rem; /* Fonte do input também menor */
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  background-color: #fdfdfd; /* Fundo quase imperceptivelmente off-white */
+  color: #333;
+}
+
+.vacancy-distribution-section .form-control:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1); /* Sombra de foco bem sutil */
+  background-color: #ffffff; 
+}
+
+/* Inputs Numéricos - Remove setas padrão */
+.vacancy-distribution-section input[type="number"] {
+  -moz-appearance: textfield; 
+}
+.vacancy-distribution-section input[type="number"]::-webkit-outer-spin-button,
+.vacancy-distribution-section input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Display do Total de Vagas */
+.vacancy-distribution-section .total-vagas-container { 
+  background-color: #f9f9f9; /* Fundo cinza claro */
+  border: 1px solid #f0f0f0;
+  color: #444; 
+  border-radius: 4px;
+  padding: 0.75rem 1rem; /* Preenchimento reduzido */
+  margin-top: 1.5rem; /* Espaçamento acima reduzido */
+  text-align: center; 
+  font-size: 0.9rem; /* Fonte reduzida */
+}
+
+.vacancy-distribution-section #total-vagas-display { 
+  font-size: 0.95rem; /* Fonte do número reduzida */
+  font-weight: 600;
+  color: #007bff;
+  margin-left: 0.2rem;
+}
+
+/* Botão de Confirmar (agora no cabeçalho) */
+.vacancy-distribution-section .card-header #confirmar-vagas.btn-primary { /* Seletor mais específico */
+  background-color: #007bff;
+  border: none;
+  color: #ffffff; 
+  padding: 0.5rem 1rem; /* Padding ligeiramente ajustado para o header */
+  font-size: 0.8rem; /* Fonte do botão ligeiramente menor no header */
+  font-weight: 500;
+  border-radius: 4px;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+  /* width: auto; Removido width: 100% */
+  /* margin-top: 1.5rem; Removido margin-top pois está no header */
+  box-shadow: 0 1px 3px rgba(0, 123, 255, 0.15); 
+  white-space: nowrap; /* Evita que o texto do botão quebre linha se for longo */
+}
+
+.vacancy-distribution-section .card-header #confirmar-vagas.btn-primary:hover {
+  background-color: #0069d9; 
+  transform: translateY(-1px); 
+  box-shadow: 0 2px 5px rgba(0, 123, 255, 0.2);
+}
+
+.vacancy-distribution-section .card-header #confirmar-vagas.btn-primary:disabled {
+  background-color: #b0b0b0; 
+  color: #f0f0f0;
+  box-shadow: none;
+  transform: none;
+}
+
+/* Ajustes para layout em colunas (Bootstrap .row > .col-md-4) */
+/* Reduz a margem entre os campos de input */
+.vacancy-distribution-section .row > [class*="col-"] .mb-3 {
+    margin-bottom: 0.75rem !important; /* Reduz o mb-3 padrão do Bootstrap */
+}
+
+.vacancy-distribution-section .row > [class*="col-"] { 
+    margin-bottom: 0.75rem; /* Espaço entre os inputs empilhados reduzido */
+}
+.vacancy-distribution-section .row > [class*="col-"]:last-child {
+    margin-bottom: 0;
+}
+
+.upload-button-container {
+  margin-top: 1.5rem;
+}
+
+@media (max-width: 767.98px) {
+  .vacancy-distribution-section .card-header {
+    padding: 0.9rem 1.2rem; 
+    flex-direction: column; /* Empilha título e botão em telas menores */
+    align-items: flex-start; /* Alinha itens à esquerda no modo coluna */
+  }
+  .vacancy-distribution-section .card-header h2 {
+    margin-bottom: 0.5rem; /* Adiciona espaço abaixo do título quando empilhado */
+  }
+  .vacancy-distribution-section .card-header #confirmar-vagas.btn-primary {
+    width: 100%; /* Faz o botão ocupar toda a largura quando empilhado */
+    margin-top: 0.5rem; /* Adiciona espaço acima do botão quando empilhado */
+  }
+
+  .vacancy-distribution-section .row > [class*="col-"] {
+    margin-bottom: 0.75rem; 
+  }
+   .vacancy-distribution-section .row > [class*="col-"]:last-child {
+    margin-bottom: 0.75rem; 
+  }
+  .vacancy-distribution-section .card-body .row:last-of-type > [class*="col-"]:last-child {
+     margin-bottom: 0; 
+  }
+  .vacancy-distribution-section .card-body {
+    padding: 1.2rem; 
+  }
+}
+

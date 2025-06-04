@@ -23,10 +23,8 @@ const NonApprovedSection = () => {
   const { nonApprovedCpfs, data: candidates } = useSelector(state => state.candidates);
   const dispatch = useDispatch();
 
-  // Memoize the CPF list to prevent unnecessary recalculations
   const allCpfs = useMemo(() => candidates.map(c => c.CPF) || [], [candidates]);
 
-  // Debounced search handler to prevent excessive updates
   const handleSearch = useCallback((term) => {
     if (term.length < 3) {
       setSearchResults([]);
@@ -43,11 +41,10 @@ const NonApprovedSection = () => {
     setShowResults(filtered.length > 0);
   }, [allCpfs, nonApprovedCpfs]);
 
-  // Use effect with proper dependencies
   useEffect(() => {
     const timer = setTimeout(() => {
       handleSearch(searchTerm);
-    }, 300); // 300ms debounce delay
+    }, 300); 
 
     return () => clearTimeout(timer);
   }, [searchTerm, handleSearch]);

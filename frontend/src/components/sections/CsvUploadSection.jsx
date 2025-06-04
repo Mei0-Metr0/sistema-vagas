@@ -1,39 +1,49 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useApi } from '../../hooks/useApi';
 import { useCsvPreview } from '../../hooks/useCsvPreview';
 import Alert from '../alerts/Alert';
 import Card from '../ui/Card';
+import '../../styles/components/upload.css'; // Arquivo CSS para estilos de arrastar e soltar
 
 const CsvUploadSection = () => {
   const [file, setFile] = useState(null);
   const { request, loading, error } = useApi();
   const { preview, generatePreview } = useCsvPreview();
   const [status, setStatus] = useState({ message: '', type: '' });
+  const [isDragging, setIsDragging] = useState(false);
+
+  const processFile = (selectedFile) => {
+    if (selectedFile && selectedFile.type === "text/csv") {
+      setFile(selectedFile);
+      generatePreview(selectedFile);
+      setStatus({ message: '', type: '' });
+    } else {
+      setFile(null);
+      setPreview(null);
+      setStatus({ message: 'Por favor, selecione um arquivo .csv válido.', type: 'error' });
+    }
+  };
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
-    setFile(selectedFile);
-    if (selectedFile) {
-      generatePreview(selectedFile);
-    }
+    processFile(selectedFile);
   };
 
   const handleUpload = async () => {
     if (!file) {
-      setStatus({ message: 'Nenhum arquivo selecionado', type: 'error' });
+      setStatus({ message: 'Nenhum arquivo selecionado ou o arquivo não é CSV.', type: 'error' });
       return;
     }
 
     console.info('Uploading file:', file.name);
     console.info('File size:', file.size);
     console.info('File type:', file.type);
-    // console.info('Content:', file); // Cuidado ao logar o 'file' inteiro, pode ser grande
 
     const formData = new FormData();
     formData.append('file', file);
 
     try {
-      const responseData = await request({ // Renomeado para responseData para clareza
+      const responseData = await request({
         endpoint: '/chamadas/upload',
         method: 'POST',
         data: formData,
@@ -42,20 +52,16 @@ const CsvUploadSection = () => {
 
       console.log('Upload response:', responseData);
 
-      // Verifica se responseData e responseData.data existem antes de acessá-los
       if (responseData && responseData.status === 'success' && responseData.data) {
         setStatus({
-          message: `Arquivo ${responseData.data.filename} carregado com sucesso! ${responseData.data.records_processed} registros processados.`, // CORRIGIDO
+          message: `Arquivo ${responseData.data.filename} carregado com sucesso! ${responseData.data.records_processed} registros processados.`,
           type: 'success'
         });
       } else {
-        // Caso a resposta tenha status 'success' mas não o payload esperado em 'data'
         setStatus({
-          message: 'Arquivo carregado, mas a resposta do servidor é inesperada.',
+          message: responseData?.message || 'Arquivo carregado, mas a resposta do servidor é inesperada.',
           type: 'warning'
         });
-        // Ou pode ser um erro se data.data for essencial
-        // throw new Error('Resposta de upload inválida do servidor');
       }
     } catch (err) {
       setStatus({
@@ -65,31 +71,91 @@ const CsvUploadSection = () => {
     }
   };
 
+  const handleDragOver = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  }, []);
+
+  const handleDrop = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      processFile(e.dataTransfer.files[0]);
+      e.dataTransfer.clearData();
+    }
+  }, [generatePreview]);
+
   return (
     <Card title="2. Upload do CSV">
-      <div className="mb-3">
-        <label htmlFor="csv-file" className="form-label">Selecione o arquivo CSV</label>
-        <input
-          className="form-control"
-          type="file"
-          id="csv-file"
-          accept=".csv"
-          onChange={handleFileChange}
-        />
+      <div className="mb-3 position-relative">
+        {/* Área principal clicável */}
+        <div
+          className={`csv-drop-zone ${isDragging ? 'dragging' : ''} ${file ? 'has-file' : ''}`}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          onClick={(e) => {
+            // Impede que o clique no botão dispare a seleção de arquivo
+            if (!e.target.closest('.upload-button')) {
+              document.getElementById('csv-file').click();
+            }
+          }}
+          role="button"
+          tabIndex={0}
+          onKeyPress={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              document.getElementById('csv-file').click();
+            }
+          }}
+        >
+          <input
+            type="file"
+            id="csv-file"
+            accept=".csv"
+            onChange={handleFileChange}
+            style={{ display: 'none' }}
+          />
+          
+          <div className="drop-zone-content">
+            <label htmlFor="csv-file" className="form-label">
+              {isDragging ? "Solte o arquivo CSV aqui" : "Arraste e solte o arquivo CSV aqui, ou clique para selecionar"}
+            </label>
+            
+            <div className="file-info">
+              {file ? `Arquivo selecionado: ${file.name}` : "Nenhum arquivo selecionado"}
+            </div>
+          </div>
+
+          {/* Botão com posicionamento absoluto */}
+          <div className="upload-button-container">
+            <button
+              className="btn btn-primary upload-button"
+              onClick={(e) => {
+                e.stopPropagation(); // Impede que o clique propague para a área do drop zone
+                handleUpload();
+              }}
+              disabled={loading || !file}
+            >
+              {loading ? 'Enviando...' : 'Enviar arquivo'}
+            </button>
+          </div>
+        </div>
       </div>
-      <button
-        className="btn btn-primary"
-        onClick={handleUpload}
-        disabled={loading}
-      >
-        {loading ? 'Enviando...' : 'Enviar arquivo'}
-      </button>
 
       {error && <Alert message={error} type="error" />}
       {status.message && <Alert message={status.message} type={status.type} />}
 
       {preview && (
         <div className="mt-3 table-responsive">
+          <h6>Pré-visualização do CSV (primeiras linhas):</h6>
           <table className="table table-striped table-bordered">
             <thead>
               <tr>
