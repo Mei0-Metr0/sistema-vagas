@@ -11,12 +11,12 @@ function App() {
     <Provider store={store}>
       <div className="container">
         <header className="my-4">
-          <h1 className="text-center">🎓 Sistema de Distribuição de Vagas</h1>
-          <p className="text-center">Distribuição de vagas em cumprimento à Lei 12.711/2012</p>
+          <h1 className="text-center titulo">Sistema de Distribuição de Vagas</h1>
+          <p className="text-center titulo2">Distribuição de vagas em cumprimento à Lei 14.723/2023</p>
         </header>
 
-        <VacancyDistributionSection />
         <CsvUploadSection />
+        <VacancyDistributionSection />
         <CallGenerationSection />
         <NonApprovedSection />
       </div>

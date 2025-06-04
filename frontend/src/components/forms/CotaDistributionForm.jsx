@@ -140,8 +140,8 @@ const CotaDistributionForm = ({ onConfirm, status, loading }) => {
           </div>
         </div>
       </div>
-      <div className="alert alert-info">
-        Total de vagas: <span id="total-vagas-display">{totalVagas}</span>
+      <div className="alert-1 alert-info-1">
+        TOTAL DE VAGAS: <span id="total-vagas-display">{totalVagas}</span>
       </div>
 
       {error && <Alert message={error} type="error" />}

@@ -33,7 +33,7 @@ const VacancyDistributionSection = () => {
   return (
     <section className="card mb-4 vacancy-distribution-section">
       <div className="card-header d-flex justify-content-between align-items-center">
-        <h2 className="mb-0">1. Informar a distribuição das cotas</h2>
+        <h2 className="mb-0">2. Informar a distribuição das cotas</h2>
         <button
           className="btn btn-primary"
           onClick={() => document.getElementById('confirmar-vagas').click()}

@@ -6,13 +6,6 @@ export const api = {
       headers: {}
     };
 
-    console.info("API Request:", {
-      url,
-      method,
-      data,
-      isFormData
-    });
-
     if (data) {
       if (isFormData) {
         options.body = data;

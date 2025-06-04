@@ -10,6 +10,8 @@ import Alert from '../alerts/Alert';
 import Card from '../ui/Card';
 import VacanciesTable from '../tables/VacanciesTable';
 
+import '../../styles/components/forms.css'; 
+
 const NonApprovedSection = () => {
   const { request, loading, error } = useApi();
   const [searchTerm, setSearchTerm] = useState('');

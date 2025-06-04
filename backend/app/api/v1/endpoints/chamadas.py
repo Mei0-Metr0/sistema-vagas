@@ -24,7 +24,6 @@ async def upload_csv(
     file_service: FileService = Depends(get_file_service),
     chamada_service: ChamadaService = Depends(get_chamada_service)
 ):
-    print(f"Recebendo arquivo: {file.filename}, tipo: {file.content_type}, tamanho aproximado: {file.size} bytes")
     try:
         content = await file.read()
         
@@ -47,8 +46,8 @@ async def upload_csv(
             )
         }
     except InvalidFileException as e:
-        logging.exception(f"Erro de arquivo inválido durante o upload: {str(e)}")
-        raise HTTPException(status_code=400, detail=str(e))
+        logging.exception(f"Erro de arquivo inválido durante o upload: {e.detail}")
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
     except HTTPException: 
         raise
     except Exception as e:
@@ -65,8 +64,10 @@ async def definir_vagas(
         chamada_service.repo.chamada_num = 1 
         return {"status": "success", "message": "Distribuição de vagas definida com sucesso.", "total_vagas": sum(vagas.dict().values())}
     except Exception as e:
-        logging.exception("Erro interno ao definir vagas")
-        raise HTTPException(status_code=500, detail=f"Erro ao definir vagas: {str(e)}")
+        logging.exception("Erro ao definir vagas")
+        detail_msg = e.detail if hasattr(e, 'detail') else str(e)
+        status_code = e.status_code if hasattr(e, 'status_code') else 500
+        raise HTTPException(status_code=status_code, detail=detail_msg)
 
 
 class GerarChamadaPayload(BaseModel): 
@@ -80,14 +81,16 @@ async def gerar_chamada(
     try:
         return chamada_service.gerar_chamada(payload.fator_multiplicacao)
     except ValidationException as e:
-        logging.exception(f"Erro de validação ao gerar chamada (fator: {payload.fator_multiplicacao}): {str(e)}")
-        raise HTTPException(status_code=422, detail=str(e))
+        logging.exception(f"Erro de validação ao gerar chamada (fator: {payload.fator_multiplicacao}): {e.detail}")
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
     except NotFoundException as e:
-        logging.exception(f"Recurso não encontrado ao gerar chamada (fator: {payload.fator_multiplicacao}): {str(e)}")
-        raise HTTPException(status_code=404, detail=str(e))
+        logging.exception(f"Recurso não encontrado ao gerar chamada (fator: {payload.fator_multiplicacao}): {e.detail}")
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
     except Exception as e:
         logging.exception(f"Erro interno não esperado ao gerar chamada (fator: {payload.fator_multiplicacao})")
-        raise HTTPException(status_code=500, detail=f"Erro interno ao gerar chamada: {str(e)}")
+        detail_msg = e.detail if hasattr(e, 'detail') else str(e)
+        status_code = e.status_code if hasattr(e, 'status_code') else 500
+        raise HTTPException(status_code=status_code, detail=detail_msg)
 
 
 @router.post("/marcar-nao-homologados", summary="Marcar candidatos não homologados e preparar para próxima chamada")
@@ -106,11 +109,13 @@ async def marcar_nao_homologados(
             "proxima_chamada": proxima_chamada_num
         }
     except ValidationException as e:
-        logging.exception(f"Erro de validação ao marcar não homologados: {str(e)}")
-        raise HTTPException(status_code=422, detail=str(e))
+        logging.exception(f"Erro de validação ao marcar não homologados: {e.detail}")
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
     except Exception as e:
         logging.exception("Erro interno não esperado ao marcar não homologados")
-        raise HTTPException(status_code=500, detail=f"Erro interno ao marcar não homologados: {str(e)}")
+        detail_msg = e.detail if hasattr(e, 'detail') else str(e)
+        status_code = e.status_code if hasattr(e, 'status_code') else 500
+        raise HTTPException(status_code=status_code, detail=detail_msg)
 
 
 @router.get("/listar/{chamada_num}", response_model=List[Candidato], summary="Listar candidatos de uma chamada")
@@ -122,11 +127,13 @@ async def listar_chamada(
         candidatos = chamada_service.listar_candidatos_chamada(chamada_num)
         return candidatos
     except NotFoundException as e: 
-        logging.exception(f"Chamada {chamada_num} não encontrada ao listar: {str(e)}")
-        raise HTTPException(status_code=404, detail=str(e))
+        logging.exception(f"Chamada {chamada_num} não encontrada ao listar: {e.detail}")
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
     except Exception as e:
         logging.exception(f"Erro interno não esperado ao listar chamada {chamada_num}")
-        raise HTTPException(status_code=500, detail=f"Erro ao listar chamada: {str(e)}")
+        detail_msg = e.detail if hasattr(e, 'detail') else str(e)
+        status_code = e.status_code if hasattr(e, 'status_code') else 500
+        raise HTTPException(status_code=status_code, detail=detail_msg)
 
 @router.get("/exportar/{chamada_num}", summary="Exportar chamada para CSV")
 async def exportar_chamada(
@@ -137,7 +144,7 @@ async def exportar_chamada(
         candidatos = chamada_service.listar_candidatos_chamada(chamada_num)
         if not candidatos: 
             logging.warning(f"Tentativa de exportar chamada {chamada_num} sem candidatos ou chamada inexistente.")
-            raise HTTPException(status_code=404, detail=f"Nenhum candidato encontrado para a chamada {chamada_num} para exportação.")
+            raise NotFoundException(detail=f"Nenhum candidato encontrado para a chamada {chamada_num} para exportação.")
             
         colunas_ordenadas = [
             "id", "cpf", "nome", "email", "nota_final", 
@@ -165,11 +172,16 @@ async def exportar_chamada(
             }
         )
         return response
+    except NotFoundException as e:
+        logging.warning(f"Exportação falhou para chamada {chamada_num}: {e.detail}")
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
     except HTTPException: 
         raise
     except Exception as e:
         logging.exception(f"Erro interno não esperado ao exportar chamada {chamada_num}")
-        raise HTTPException(status_code=500, detail=f"Erro interno ao exportar chamada: {str(e)}")
+        detail_msg = e.detail if hasattr(e, 'detail') else str(e)
+        status_code = e.status_code if hasattr(e, 'status_code') else 500
+        raise HTTPException(status_code=status_code, detail=detail_msg)
 
 @router.get("/vagas-disponiveis", summary="Obter vagas disponíveis por cota para a próxima chamada")
 async def vagas_disponiveis_endpoint( 
@@ -178,8 +190,10 @@ async def vagas_disponiveis_endpoint(
     try:
         return chamada_service.get_vagas_disponiveis()
     except ValidationException as e:
-        logging.exception(f"Erro de validação ao obter vagas disponíveis: {str(e)}")
-        raise HTTPException(status_code=422, detail=str(e))
+        logging.exception(f"Erro de validação ao obter vagas disponíveis: {e.detail}")
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
     except Exception as e:
         logging.exception("Erro interno não esperado ao obter vagas disponíveis")
-        raise HTTPException(status_code=500, detail=f"Erro ao obter vagas disponíveis: {str(e)}")
+        detail_msg = e.detail if hasattr(e, 'detail') else str(e)
+        status_code = e.status_code if hasattr(e, 'status_code') else 500
+        raise HTTPException(status_code=status_code, detail=detail_msg)

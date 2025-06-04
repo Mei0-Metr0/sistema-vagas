@@ -4,7 +4,8 @@ const initialState = {
   data: [],
   filteredData: [],
   sortConfig: { key: 'Nota Final', direction: 'desc' },
-  filter: 'todas',
+  filterCotaCandidato: 'todas',
+  filterVagaSelecionada: 'todas',
   nonApprovedCpfs: []
 };
 
@@ -14,15 +15,38 @@ export const candidatesSlice = createSlice({
   reducers: {
     setCandidates: (state, action) => {
       state.data = action.payload;
-      state.filteredData = applyFiltersAndSorting(action.payload, state.filter, state.sortConfig);
+      state.filteredData = applyFiltersAndSorting(
+        action.payload, 
+        state.filterCotaCandidato,
+        state.filterVagaSelecionada,
+        state.sortConfig
+      );
     },
     sortCandidates: (state, action) => {
       state.sortConfig = action.payload;
-      state.filteredData = applyFiltersAndSorting(state.data, state.filter, action.payload);
+      state.filteredData = applyFiltersAndSorting(
+        state.filterCotaCandidato,
+        state.filterVagaSelecionada,
+        action.payload
+      );
     },
-    filterCandidates: (state, action) => {
-      state.filter = action.payload;
-      state.filteredData = applyFiltersAndSorting(state.data, action.payload, state.sortConfig);
+    filterCandidatesByCota: (state, action) => {
+      state.filterCotaCandidato = action.payload;
+      state.filteredData = applyFiltersAndSorting(
+        state.data,
+        action.payload,
+        state.filterVagaSelecionada,
+        state.sortConfig
+      );
+    },
+    filterCandidatesByVagaSelecionada: (state, action) => {
+      state.filterVagaSelecionada = action.payload;
+      state.filteredData = applyFiltersAndSorting(
+        state.data,
+        state.filterCotaCandidato,
+        action.payload, 
+        state.sortConfig
+      );
     },
     addNonApprovedCpf: (state, action) => {
       state.nonApprovedCpfs = [...state.nonApprovedCpfs, action.payload];
@@ -36,12 +60,20 @@ export const candidatesSlice = createSlice({
   }
 });
 
-// Helper function
-function applyFiltersAndSorting(data, filter, sortConfig) {
-  let filtered = filter === 'todas' 
-    ? [...data] 
-    : data.filter(candidate => candidate['Cota do candidato'] === filter);
+function applyFiltersAndSorting(data, filterCotaCandidato, filterVagaSelecionada, sortConfig) {
+  let filtered = [...data];
+
+  // Aplicar filtro por Cota do Candidato
+  if (filterCotaCandidato !== 'todas') {
+    filtered = filtered.filter(candidate => candidate['Cota do candidato'] === filterCotaCandidato);
+  }
+
+  // Aplicar filtro por Vaga Selecionada
+  if (filterVagaSelecionada !== 'todas') {
+    filtered = filtered.filter(candidate => candidate['Vaga Selecionada'] === filterVagaSelecionada);
+  }
   
+  // Aplicar ordenação
   return [...filtered].sort((a, b) => {
     let valueA = a[sortConfig.key];
     let valueB = b[sortConfig.key];
@@ -60,7 +92,8 @@ function applyFiltersAndSorting(data, filter, sortConfig) {
 export const { 
   setCandidates, 
   sortCandidates, 
-  filterCandidates,
+  filterCandidatesByCota,
+  filterCandidatesByVagaSelecionada,
   addNonApprovedCpf,
   removeNonApprovedCpf,
   clearNonApprovedCpfs

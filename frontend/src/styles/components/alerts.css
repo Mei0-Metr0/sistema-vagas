@@ -1,4 +1,4 @@
-.alert {
+.alert-1 {
   padding: 0.75rem 1.25rem;
   margin-bottom: 1rem;
   border: 1px solid transparent;
@@ -6,20 +6,21 @@
   display: block;
 }
 
-.alert-success {
+.alert-success-1 {
   background-color: #d4edda;
   border-color: #c3e6cb;
   color: #155724;
 }
 
-.alert-error {
+.alert-error-1 {
   background-color: #f8d7da;
   border-color: #f5c6cb;
   color: #721c24;
 }
 
-.alert-info {
+.alert-info-1 {
   background-color: #d1ecf1;
+  font-weight: bold;
   border-color: #bee5eb;
   color: #0c5460;
 }

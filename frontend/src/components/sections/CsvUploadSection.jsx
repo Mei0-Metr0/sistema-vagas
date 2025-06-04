@@ -3,11 +3,11 @@ import { useApi } from '../../hooks/useApi';
 import { useCsvPreview } from '../../hooks/useCsvPreview';
 import Alert from '../alerts/Alert';
 import Card from '../ui/Card';
-import '../../styles/components/upload.css'; // Arquivo CSS para estilos de arrastar e soltar
+import '../../styles/components/upload.css';
 
 const CsvUploadSection = () => {
   const [file, setFile] = useState(null);
-  const { request, loading, error } = useApi();
+  const { request, loading, error: apiErrorHook } = useApi();
   const { preview, generatePreview } = useCsvPreview();
   const [status, setStatus] = useState({ message: '', type: '' });
   const [isDragging, setIsDragging] = useState(false);
@@ -35,10 +35,6 @@ const CsvUploadSection = () => {
       return;
     }
 
-    console.info('Uploading file:', file.name);
-    console.info('File size:', file.size);
-    console.info('File type:', file.type);
-
     const formData = new FormData();
     formData.append('file', file);
 
@@ -49,8 +45,6 @@ const CsvUploadSection = () => {
         data: formData,
         isFormData: true
       });
-
-      console.log('Upload response:', responseData);
 
       if (responseData && responseData.status === 'success' && responseData.data) {
         setStatus({
@@ -94,9 +88,8 @@ const CsvUploadSection = () => {
   }, [generatePreview]);
 
   return (
-    <Card title="2. Upload do CSV">
+    <Card title="1. Upload do CSV">
       <div className="mb-3 position-relative">
-        {/* Área principal clicável */}
         <div
           className={`csv-drop-zone ${isDragging ? 'dragging' : ''} ${file ? 'has-file' : ''}`}
           onDragOver={handleDragOver}
@@ -126,7 +119,7 @@ const CsvUploadSection = () => {
           
           <div className="drop-zone-content">
             <label htmlFor="csv-file" className="form-label">
-              {isDragging ? "Solte o arquivo CSV aqui" : "Arraste e solte o arquivo CSV aqui, ou clique para selecionar"}
+              {isDragging ? "SOLTE O ARQUIVO CSV AQUI" : "ARRASTE E SOLTE O ARQUIVO CSV AQUI, OU CLIQUE PARA SELECIONAR"}
             </label>
             
             <div className="file-info">
@@ -134,7 +127,6 @@ const CsvUploadSection = () => {
             </div>
           </div>
 
-          {/* Botão com posicionamento absoluto */}
           <div className="upload-button-container">
             <button
               className="btn btn-primary upload-button"
@@ -150,8 +142,8 @@ const CsvUploadSection = () => {
         </div>
       </div>
 
-      {error && <Alert message={error} type="error" />}
-      {status.message && <Alert message={status.message} type={status.type} />}
+      {apiErrorHook && <Alert message={apiErrorHook} type="error" />}
+      {!apiErrorHook && status.message && <Alert message={status.message} type={status.type} />}
 
       {preview && (
         <div className="mt-3 table-responsive">

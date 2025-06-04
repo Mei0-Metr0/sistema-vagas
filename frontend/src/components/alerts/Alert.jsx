@@ -18,7 +18,7 @@ const Alert = ({ message, type = 'info', duration = 5000 }) => {
   if (!visible || !message) return null;
 
   return (
-    <div className={`alert alert-${type}`}>
+    <div className={`alert-1 alert-${type}-1`}>
       {message}
     </div>
   );

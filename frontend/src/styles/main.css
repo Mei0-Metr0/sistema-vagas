@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
 /* ===== ESTILOS GERAIS ===== */
 body {
     background-color: #f8f9fa;
@@ -107,10 +109,11 @@ tr.removing {
 }
 
 .vacancy-distribution-section .card-header h2 {
-  font-size: 1.5rem; /* Tamanho de fonte bem compacto */
   color: #333; /* Cor de texto escura, mas não totalmente preta */
   margin-bottom: 0; /* Removido margin-bottom pois o flex cuida do alinhamento */
-  font-weight: 500;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 1.3rem;
 }
 
 /* Corpo do Card */
@@ -166,7 +169,6 @@ tr.removing {
 }
 
 .vacancy-distribution-section #total-vagas-display { 
-  font-size: 0.95rem; /* Fonte do número reduzida */
   font-weight: 600;
   color: #007bff;
   margin-left: 0.2rem;

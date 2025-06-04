@@ -2,16 +2,14 @@ import pandas as pd
 from typing import List, Dict, Any
 from domain.entities import CandidatoCreate
 from core.exceptions import InvalidFileException
+from io import StringIO
 
 class FileService:
     @staticmethod
     def process_csv(file_content: bytes) -> List[Dict[str, Any]]:
         try:
-            # Usar StringIO para ler o conteúdo do arquivo
-            from io import StringIO
+            # Ler o conteúdo do arquivo CSV
             csv_data = StringIO(file_content.decode('utf-8'))
-            
-            # Ler o CSV com pandas
             df = pd.read_csv(csv_data)
             
             # Verificar colunas obrigatórias
@@ -23,7 +21,7 @@ class FileService:
             # Converter para lista de dicionários
             return df.to_dict('records')
         except Exception as e:
-            raise InvalidFileException(f"Erro ao processar arquivo: {str(e)}")
+            raise InvalidFileException(f"Erro ao processar arquivo: {e.detail}")
 
     @staticmethod
     def convert_to_candidatos(data: List[Dict[str, Any]]) -> List[CandidatoCreate]:

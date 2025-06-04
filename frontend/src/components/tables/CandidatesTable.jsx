@@ -1,9 +1,9 @@
 import { useSelector, useDispatch } from 'react-redux';
-import { sortCandidates, filterCandidates } from '../../store/slices/candidatesSlice';
+import { sortCandidates, filterCandidatesByCota, filterCandidatesByVagaSelecionada } from '../../store/slices/candidatesSlice';
 import SortableTableHeader from './SortableTableHeader';
 
 const CandidatesTable = () => {
-  const { filteredData, sortConfig, filter } = useSelector(state => state.candidates);
+  const { filteredData, sortConfig, filterCotaCandidato, filterVagaSelecionada } = useSelector(state => state.candidates);
   const dispatch = useDispatch();
 
   const handleSort = (key) => {
@@ -16,39 +16,62 @@ const CandidatesTable = () => {
     dispatch(sortCandidates({ key, direction }));
   };
 
-  const handleFilterChange = (e) => {
-    dispatch(filterCandidates(e.target.value));
+  const handleFilterCotaChange = (e) => {
+    dispatch(filterCandidatesByCota(e.target.value));
   };
 
-  if (filteredData.length === 0) {
-    return <div className="text-center my-4">Nenhum candidato encontrado</div>;
-  }
+  const handleFilterVagaSelecionadaChange = (e) => {
+    dispatch(filterCandidatesByVagaSelecionada(e.target.value));
+  };
 
-  const headers = Object.keys(filteredData[0]);
+  const headers = filteredData.length > 0 ? Object.keys(filteredData[0]) : [];
 
   return (
     <div className="candidatos-container mt-4">
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <h5 className="mb-0">Candidatos chamados</h5>
-        <div className="filter-options">
-          <label className="me-2">FILTRO POR CATEGORIA:</label>
-          <select 
-            id="filter-cota" 
-            className="form-select form-select-sm d-inline-block w-auto"
-            value={filter}
-            onChange={handleFilterChange}
-          >
-            <option value="todas">Todas</option>
-            <option value="AC">AC</option>
-            <option value="LI_EP">LI_EP</option>
-            <option value="LI_PCD">LI_PCD</option>
-            <option value="LI_Q">LI_Q</option>
-            <option value="LI_PPI">LI_PPI</option>
-            <option value="LB_EP">LB_EP</option>
-            <option value="LB_PCD">LB_PCD</option>
-            <option value="LB_Q">LB_Q</option>
-            <option value="LB_PPI">LB_PPI</option>
-          </select>
+      <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+        <h5 className="mb-0 me-3">Candidatos chamados</h5>
+        <div className="filter-options d-flex flex-wrap">
+          <div className="me-3 mb-2 mb-md-0"> 
+            <label htmlFor="filter-cota-candidato" className="me-2 form-label">FILTRO POR COTA DO CANDIDATO:</label>
+            <select 
+              id="filter-cota-candidato"
+              className="form-select form-select-sm d-inline-block w-auto"
+              value={filterCotaCandidato}
+              onChange={handleFilterCotaChange}
+            >
+              <option value="todas">Todas</option>
+              <option value="AC">AC</option>
+              <option value="LI_EP">LI_EP</option>
+              <option value="LI_PCD">LI_PCD</option>
+              <option value="LI_Q">LI_Q</option>
+              <option value="LI_PPI">LI_PPI</option>
+              <option value="LB_EP">LB_EP</option>
+              <option value="LB_PCD">LB_PCD</option>
+              <option value="LB_Q">LB_Q</option>
+              <option value="LB_PPI">LB_PPI</option>
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="filter-vaga-selecionada" className="me-2 form-label">FILTRO POR VAGA SELECIONADA:</label>
+            <select 
+              id="filter-vaga-selecionada"
+              className="form-select form-select-sm d-inline-block w-auto"
+              value={filterVagaSelecionada}
+              onChange={handleFilterVagaSelecionadaChange}
+            >
+              <option value="todas">Todas</option>
+              <option value="AC">AC</option>
+              <option value="LI_EP">LI_EP</option>
+              <option value="LI_PCD">LI_PCD</option>
+              <option value="LI_Q">LI_Q</option>
+              <option value="LI_PPI">LI_PPI</option>
+              <option value="LB_EP">LB_EP</option>
+              <option value="LB_PCD">LB_PCD</option>
+              <option value="LB_Q">LB_Q</option>
+              <option value="LB_PPI">LB_PPI</option>
+            </select>
+          </div>
         </div>
       </div>
       
@@ -68,9 +91,9 @@ const CandidatesTable = () => {
           </thead>
           <tbody>
             {filteredData.map((candidate, index) => (
-              <tr key={index}>
+              <tr key={candidate.ID || index}>
                 {headers.map(header => (
-                  <td key={`${index}-${header}`}>{candidate[header]}</td>
+                  <td key={`${candidate.ID || index}-${header}`}>{candidate[header]}</td>
                 ))}
               </tr>
             ))}
