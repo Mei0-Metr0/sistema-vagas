@@ -157,7 +157,7 @@ class ChamadaService:
             for cota in TipoCota
         }
         
-        saldo_vagas_passos = [0] * len(self.INDICE_PARA_COTA) 
+        saldo_vagas_passos = [0] * len(self.INDICE_PARA_COTA)  
         tamanho_lista_passos = [0] * len(self.INDICE_PARA_COTA) 
         vagas_preenchidas_passos = [0] * len(self.INDICE_PARA_COTA) 
 
@@ -171,7 +171,7 @@ class ChamadaService:
             candidatos_filtrados_para_este_passo = self._filtrar_candidatos(candidatos_ordenados_globalmente, passo_num)
             tamanho_lista_passos[passo_idx] = len(candidatos_filtrados_para_este_passo)
             
-            vagas_para_ofertar_na_cota_do_passo = vagas_ofertadas_nesta_chamada[cota_do_passo_atual]
+            vagas_para_ofertar_na_cota_do_passo = vagas_ofertadas_nesta_chamada.get(cota_do_passo_atual, 0) # Usar .get com default
             
             if vagas_para_ofertar_na_cota_do_passo > 0 and tamanho_lista_passos[passo_idx] > 0 :
                 v_preenchidas = self._executar_passo(
@@ -181,25 +181,34 @@ class ChamadaService:
                     candidatos_ordenados_e_filtrados_para_passo=candidatos_filtrados_para_este_passo
                 )
                 vagas_preenchidas_passos[passo_idx] = v_preenchidas
-                
                 saldo_vagas_passos[passo_idx] = vagas_para_ofertar_na_cota_do_passo - v_preenchidas 
             else:
                 vagas_preenchidas_passos[passo_idx] = 0
                 saldo_vagas_passos[passo_idx] = vagas_para_ofertar_na_cota_do_passo 
 
-        # Calcular o novo saldo de vagas para a PRÓXIMA chamada
-        novo_saldo_repo = Vagas()
-        vagas_originais_do_edital = self.repo.get_vagas_originais()
-        if not vagas_originais_do_edital:
-            vagas_originais_do_edital = Vagas()
+        saldo_candidatos_vs_oferta_list = []
+        for i in range(len(self.INDICE_PARA_COTA)):
+            cota_atual_enum = self.INDICE_PARA_COTA[i]
+            oferta_para_cota = vagas_ofertadas_nesta_chamada.get(cota_atual_enum, 0)
+            saldo_candidatos_vs_oferta_list.append(tamanho_lista_passos[i] - oferta_para_cota)
+        
+        saldo_candidatos_vs_oferta_ajustado_list = self._ajustar_saldo_vagas(saldo_candidatos_vs_oferta_list)
 
-        vagas_disponiveis_inicio_chamada = self.repo.get_vagas() # Saldo da chamada anterior / Vagas originais se primeira chamada
+        saldo_candidatos_chamada_atual_dict = {
+            self.INDICE_PARA_COTA[i]: saldo_candidatos_vs_oferta_list[i] 
+            for i in range(len(self.INDICE_PARA_COTA))
+        }
+        saldo_candidatos_chamada_atual_ajustado_dict = {
+            self.INDICE_PARA_COTA[i]: saldo_candidatos_vs_oferta_ajustado_list[i] 
+            for i in range(len(self.INDICE_PARA_COTA))
+        }
+
+        novo_saldo_repo = Vagas()
+        vagas_disponiveis_inicio_chamada = self.repo.get_vagas()
 
         for i, cota_enum_vaga_preenchida in self.INDICE_PARA_COTA.items():
             vagas_cota_inicio_chamada = getattr(vagas_disponiveis_inicio_chamada, cota_enum_vaga_preenchida.value, 0)
-            
-            preenchidas_nesta_cota_nesta_chamada = vagas_preenchidas_passos[i]
-            
+            preenchidas_nesta_cota_nesta_chamada = vagas_preenchidas_passos[i] 
             saldo_final_para_cota = max(0, vagas_cota_inicio_chamada - preenchidas_nesta_cota_nesta_chamada)
             setattr(novo_saldo_repo, cota_enum_vaga_preenchida.value, saldo_final_para_cota)
         
@@ -211,15 +220,16 @@ class ChamadaService:
         ]
         
         vagas_selecionadas_dict = {self.INDICE_PARA_COTA[i]: vagas_preenchidas_passos[i] for i in range(len(self.INDICE_PARA_COTA))}
-        saldo_vagas_dict = novo_saldo_repo.dict() 
         tamanho_lista_dict = {self.INDICE_PARA_COTA[i]: tamanho_lista_passos[i] for i in range(len(self.INDICE_PARA_COTA))}
 
         return ChamadaResult(
             candidatos_chamados=candidatos_chamados_nesta_rodada,
             vagas_selecionadas=vagas_selecionadas_dict,
-            saldo_vagas=saldo_vagas_dict,
+            saldo_remanescente_proxima_chamada=novo_saldo_repo.dict(),
             tamanho_lista=tamanho_lista_dict,
-            chamada_num=chamada_num
+            chamada_num=chamada_num,
+            saldo_candidatos_chamada_atual=saldo_candidatos_chamada_atual_dict,
+            saldo_candidatos_chamada_atual_ajustado=saldo_candidatos_chamada_atual_ajustado_dict
         )
 
     def marcar_nao_homologados(self, cpfs: List[str]) -> List[Dict[str, Any]]:

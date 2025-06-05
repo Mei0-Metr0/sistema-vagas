@@ -6,20 +6,18 @@ import Card from '../ui/Card';
 import CandidatesTable from '../tables/CandidatesTable';
 import MultiplierForm from '../forms/MultiplierForm';
 import VacanciesTable from '../tables/VacanciesTable';
-import { setCallData }
-    from '../../store/slices/callSlice';
-import { setCandidates } 
-    from '../../store/slices/candidatesSlice';
+import { setCallData } from '../../store/slices/callSlice';
+import { setCandidates } from '../../store/slices/candidatesSlice';
 
 const CallGenerationSection = () => {
   const { request, loading, error: apiErrorHook } = useApi();
   const [status, setStatus] = useState({ message: '', type: '' });
+
   const { currentCall, vacanciesInfo, balance } = useSelector(state => state.call);
   const dispatch = useDispatch();
 
-  // Função para lidar com a geração da chamada
   const handleGenerateCall = async (multiplier) => {
-    setStatus({ message: '', type: '' }); 
+    setStatus({ message: '', type: '' });
 
     try {
       const backendResponse = await request({
@@ -35,16 +33,16 @@ const CallGenerationSection = () => {
           'Tamanho da Lista': backendResponse.tamanho_lista[cota]
         }));
 
-        const transformedBalance = Object.keys(backendResponse.saldo_vagas || {}).map(cota => ({
+        const transformedBalanceForCallStats = Object.keys(backendResponse.saldo_candidatos_chamada_atual || {}).map(cota => ({
           'Cota': cota,
-          'Saldo': backendResponse.saldo_vagas[cota], // Usando saldo_vagas para ambas colunas por enquanto
-          'Saldo Ajustado': backendResponse.saldo_vagas[cota]
+          'Saldo': backendResponse.saldo_candidatos_chamada_atual[cota],
+          'Saldo Ajustado': backendResponse.saldo_candidatos_chamada_atual_ajustado[cota]
         }));
 
         dispatch(setCallData({
           chamada_num: backendResponse.chamada_num,
           vagas_info: transformedVacanciesInfo,
-          saldo_vagas: transformedBalance
+          saldo_vagas: transformedBalanceForCallStats
         }));
 
         const transformedCandidates = (backendResponse.candidatos_chamados || []).map(cand => ({
@@ -68,13 +66,12 @@ const CallGenerationSection = () => {
       } else {
         console.warn("Resposta do backend para /gerar-chamada não contém os dados esperados:", backendResponse);
         setStatus({
-          message: 'Resposta recebida do servidor, mas dados da chamada estão incompletos ou ausentes.',
+          message: backendResponse?.detail || 'Resposta recebida do servidor, mas dados da chamada estão incompletos ou ausentes.',
           type: 'warning'
         });
       }
     } catch (errCaught) {
       console.error("Erro em handleGenerateCall:", errCaught);
-      setStatus({ message: '', type: '' });
     }
   };
 
@@ -88,23 +85,21 @@ const CallGenerationSection = () => {
           <button
             className="btn-app btn-app-primary w-100"
             onClick={() => {
-                const multiplierInput = document.getElementById('fator-multiplicacao');
-                const currentMultiplier = multiplierInput ? parseFloat(multiplierInput.value) : 1.0;
-                handleGenerateCall(currentMultiplier);
+              const multiplierInput = document.getElementById('fator-multiplicacao');
+              const currentMultiplier = multiplierInput ? parseFloat(multiplierInput.value) : 1.0;
+              handleGenerateCall(currentMultiplier);
             }}
             disabled={loading}
           >
-            {loading ? 'Processando...' : `Gerar ${currentCall === 0 ? 1 : currentCall + 1}ª chamada`}
+            {loading ? 'Processando...' : `Gerar ${currentCall === 0 && !status.message ? 1 : (status.type === 'success' ? currentCall +1 : currentCall +1)}ª chamada`}
           </button>
         </div>
       </div>
 
-      {/* Exibe erros da API, se houver */}
       {apiErrorHook && <Alert message={apiErrorHook} type="error" />}
       {!apiErrorHook && status.message && <Alert message={status.message} type={status.type} />}
 
-      {/* Exibe as estatísticas apenas se a chamada foi gerada com sucesso ou se já existem informações de vagas */}
-      {((status.type === 'success' && !apiErrorHook) || vacanciesInfo.length > 0 || balance.length > 0) && (
+      {((status.type === 'success' && !apiErrorHook) || (vacanciesInfo && vacanciesInfo.length > 0) || (balance && balance.length > 0)) && (
         <div className="mt-4">
           <h4 className="estatisticas-chamada">Estatísticas da {currentCall}ª chamada</h4>
           <div className="row">
@@ -126,7 +121,6 @@ const CallGenerationSection = () => {
 
           <CandidatesTable />
 
-          {/* Link de download */}
           {currentCall > 0 && (
             <div className="mt-3">
               <a

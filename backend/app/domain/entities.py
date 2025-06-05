@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Dict, List, Optional
 from pydantic import BaseModel
 from .enums import TipoCota, StatusCandidato
 
@@ -34,11 +34,13 @@ class Vagas(BaseModel):
     LB_PPI: int = 0
 
 class ChamadaResult(BaseModel):
-    candidatos_chamados: list[Candidato]
-    vagas_selecionadas: dict[TipoCota, int]
-    saldo_vagas: dict[TipoCota, int]
-    tamanho_lista: dict[TipoCota, int]
+    candidatos_chamados: List[Candidato]
+    vagas_selecionadas: Dict[TipoCota, int]
+    saldo_remanescente_proxima_chamada: Dict[TipoCota, int]
+    tamanho_lista: Dict[TipoCota, int]
     chamada_num: int
+    saldo_candidatos_chamada_atual: Optional[Dict[TipoCota, int]] = None
+    saldo_candidatos_chamada_atual_ajustado: Optional[Dict[TipoCota, int]] = None
 
 class FileUploadResponse(BaseModel):
     filename: str
