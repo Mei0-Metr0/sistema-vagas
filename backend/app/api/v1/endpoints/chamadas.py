@@ -4,7 +4,7 @@ from typing import List, Optional
 import pandas as pd
 import logging
 
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, JSONResponse
 from api.dependencies import get_chamada_service, get_file_service
 from services.chamada_service import ChamadaService
 from services.file_service import FileService
@@ -199,3 +199,16 @@ async def vagas_disponiveis_endpoint(
         detail_msg = e.detail if hasattr(e, 'detail') else str(e)
         status_code = e.status_code if hasattr(e, 'status_code') else 500
         raise HTTPException(status_code=status_code, detail=detail_msg)
+
+@router.post("/reset-sistema", summary="Resetar todo o sistema para o estado inicial")
+async def reset_sistema_endpoint(
+    chamada_service: ChamadaService = Depends(get_chamada_service)
+):
+    try:
+        logging.info("Recebida requisição para resetar o sistema.")
+        chamada_service.reset_sistema()
+        logging.info("Sistema resetado com sucesso.")
+        return {"status": "success", "message": "Sistema resetado para o estado inicial com sucesso."}
+    except Exception as e:
+        logging.exception("Erro ao resetar o sistema no endpoint /reset-sistema")
+        raise HTTPException(status_code=500, detail=f"Erro interno ao resetar o sistema: {str(e)}")

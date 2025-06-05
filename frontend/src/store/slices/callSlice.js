@@ -17,10 +17,11 @@ export const callSlice = createSlice({
     },
     incrementCall: (state) => {
       state.currentCall += 1;
-    }
+    },
+    resetCall: () => initialState
   }
 });
 
-export const { setCallData, incrementCall } = callSlice.actions;
+export const { setCallData, incrementCall, resetCall } = callSlice.actions;
 
 export default callSlice.reducer;

@@ -57,7 +57,8 @@ export const candidatesSlice = createSlice({
     },
     clearNonApprovedCpfs: (state) => {
       state.nonApprovedCpfs = [];
-    }
+    },
+    resetCandidates: () => initialState
   }
 });
 
@@ -97,7 +98,8 @@ export const {
   filterCandidatesByVagaSelecionada,
   addNonApprovedCpf,
   removeNonApprovedCpf,
-  clearNonApprovedCpfs
+  clearNonApprovedCpfs,
+  resetCandidates
 } = candidatesSlice.actions;
 
 export default candidatesSlice.reducer;

@@ -24,10 +24,11 @@ export const vacanciesSlice = createSlice({
     },
     confirmDistribution: (state) => {
       state.confirmed = true;
-    }
+    },
+    resetVacancies: () => initialState
   }
 });
 
-export const { setDistribution, confirmDistribution } = vacanciesSlice.actions;
+export const { setDistribution, confirmDistribution, resetVacancies } = vacanciesSlice.actions;
 
 export default vacanciesSlice.reducer;
