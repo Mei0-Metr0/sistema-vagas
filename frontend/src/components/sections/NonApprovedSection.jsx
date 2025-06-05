@@ -193,13 +193,14 @@ const NonApprovedSection = () => {
       
       {error && <Alert message={error} type="error" />}
       {status.message && <Alert message={status.message} type={status.type} />}
-      
+
       {showAvailableVacancies && (
         <div id="vagas-disponiveis" className="mt-4">
           <h5>Novas vagas disponíveis</h5>
           <VacanciesTable 
             data={availableVacancies}
-            headers={['Cota', 'Vagas Originais', 'Vagas Disponíveis']}
+            headers={['Cota', 'Vagas Ofertadas (Última Chamada)', 'Vagas Disponíveis (Próxima Chamada)']}
+            contents={['Cota', 'Vagas Originais', 'Vagas Disponíveis']}
           />
           <div className="alert alert-info mt-4">
             Pronto para gerar a <span id="proxima-chamada-num">{nextCallNumber}</span>ª chamada!

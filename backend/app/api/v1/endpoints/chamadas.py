@@ -101,6 +101,8 @@ async def marcar_nao_homologados(
     try:
         vagas_disponiveis_formatado = chamada_service.marcar_nao_homologados(cpfs)
         proxima_chamada_num = chamada_service.repo.get_chamada_num()
+
+        print(f"Vagas disponíveis após marcar não homologados: {vagas_disponiveis_formatado}")
         
         return {
             "status": "success",

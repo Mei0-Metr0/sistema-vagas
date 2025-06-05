@@ -1,4 +1,4 @@
-const VacanciesTable = ({ data, headers }) => {
+const VacanciesTable = ({ data, headers, contents }) => {
   if (!Array.isArray(data) || data.length === 0) {
     return null;
   }
@@ -16,7 +16,7 @@ const VacanciesTable = ({ data, headers }) => {
         <tbody>
           {data.map((item, index) => (
             <tr key={index}>
-              {headers.map(header => (
+              {contents.map(header => (
                 <td key={`${index}-${header}`}>
                   {item && item[header] !== undefined ? item[header] : ''}
                 </td>

@@ -49,6 +49,12 @@ class InMemoryRepository:
 
     def get_vagas_originais(self) -> Optional[Vagas]:
         return self.vagas_originais
+    
+    def set_vagas_ofertadas_na_ultima_chamada_gerada(self, vagas_ofertadas: Vagas):
+        self.vagas_ofertadas_na_ultima_chamada_gerada = vagas_ofertadas.copy()
+
+    def get_vagas_ofertadas_na_ultima_chamada_gerada(self) -> Optional[Vagas]:
+        return self.vagas_ofertadas_na_ultima_chamada_gerada
 
     def increment_chamada_num(self) -> int:
         self.chamada_num += 1

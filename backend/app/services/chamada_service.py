@@ -156,6 +156,13 @@ class ChamadaService:
             cota: int(getattr(vagas_base_para_calculo_oferta, cota.value, 0) * fator_multiplicacao)
             for cota in TipoCota
         }
+
+        vagas_ofertadas_dict_for_model = {
+            cota_enum.value: count 
+            for cota_enum, count in vagas_ofertadas_nesta_chamada.items()
+        }
+        vagas_ofertadas_obj_para_repo = Vagas(**vagas_ofertadas_dict_for_model)
+        self.repo.set_vagas_ofertadas_na_ultima_chamada_gerada(vagas_ofertadas_obj_para_repo)
         
         saldo_vagas_passos = [0] * len(self.INDICE_PARA_COTA)  
         tamanho_lista_passos = [0] * len(self.INDICE_PARA_COTA) 
@@ -225,7 +232,7 @@ class ChamadaService:
         return ChamadaResult(
             candidatos_chamados=candidatos_chamados_nesta_rodada,
             vagas_selecionadas=vagas_selecionadas_dict,
-            saldo_remanescente_proxima_chamada=novo_saldo_repo.dict(),
+            saldo_remanescente_proxima_chamada=novo_saldo_repo.model_dump(), # Usar model_dump() para Pydantic v2+
             tamanho_lista=tamanho_lista_dict,
             chamada_num=chamada_num,
             saldo_candidatos_chamada_atual=saldo_candidatos_chamada_atual_dict,
@@ -277,22 +284,27 @@ class ChamadaService:
         return self._calcular_vagas_disponiveis_formatado()
 
     def _calcular_vagas_disponiveis_formatado(self) -> List[Dict[str, Any]]:
-        """Calcula vagas disponíveis após não homologações"""
         vagas_saldo_atual_repo = self.repo.get_vagas()
-        vagas_originais_edital = self.repo.get_vagas_originais()
+        
+        vagas_ofertadas_ultima_chamada = self.repo.get_vagas_ofertadas_na_ultima_chamada_gerada()
 
-        if not vagas_originais_edital:
-            vagas_originais_edital = Vagas()
+        if not vagas_ofertadas_ultima_chamada:
+            vagas_ofertadas_ultima_chamada = Vagas()
 
         formatted_list = []
         for cota_enum in TipoCota:
             cota_str = cota_enum.value
-            originais = getattr(vagas_originais_edital, cota_str, 0)
-            disponiveis_para_proxima = getattr(vagas_saldo_atual_repo, cota_str, 0)
+            
+            # "Vagas Originais" reflete as vagas ofertadas na chamada anterior
+            ofertadas_na_chamada_anterior = getattr(vagas_ofertadas_ultima_chamada, cota_str, 0)
+            
+            # "Vagas Disponíveis" saldo para a próxima chamada
+            disponiveis_para_proxima_chamada = getattr(vagas_saldo_atual_repo, cota_str, 0)
+            
             formatted_list.append({
                 "Cota": cota_str,
-                "Vagas Originais": originais, 
-                "Vagas Disponíveis": disponiveis_para_proxima 
+                "Vagas Originais": ofertadas_na_chamada_anterior,
+                "Vagas Disponíveis": disponiveis_para_proxima_chamada 
             })
         return formatted_list
 

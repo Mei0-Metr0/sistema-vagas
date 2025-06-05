@@ -108,6 +108,7 @@ const CallGenerationSection = () => {
               <VacanciesTable
                 data={balance}
                 headers={['Cota', 'Saldo', 'Saldo Ajustado']}
+                contents={['Cota', 'Saldo', 'Saldo Ajustado']}
               />
             </div>
             <div className="col-md-6">
@@ -115,6 +116,7 @@ const CallGenerationSection = () => {
               <VacanciesTable
                 data={vacanciesInfo}
                 headers={['Cota', 'Vagas Selecionadas', 'Tamanho da Lista']}
+                contents={['Cota', 'Vagas Selecionadas', 'Tamanho da Lista']}
               />
             </div>
           </div>
