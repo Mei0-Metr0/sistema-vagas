@@ -11,7 +11,7 @@ class FileProcessor:
             df = pd.read_csv(csv_data)
             return df.to_dict('records')
         except Exception as e:
-            raise InvalidFileException(f"Erro ao processar CSV: {str(e)}")
+            raise InvalidFileException(f"Erro ao processar CSV: {e.detail}")
 
     @staticmethod
     def dict_to_csv(data: List[Dict[str, Any]]) -> bytes:
@@ -20,4 +20,4 @@ class FileProcessor:
             csv_content = df.to_csv(index=False)
             return csv_content.encode('utf-8')
         except Exception as e:
-            raise InvalidFileException(f"Erro ao gerar CSV: {str(e)}")
+            raise InvalidFileException(f"Erro ao gerar CSV: {e.detail}")

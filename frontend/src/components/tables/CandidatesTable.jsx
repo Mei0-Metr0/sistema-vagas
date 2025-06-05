@@ -2,6 +2,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { sortCandidates, filterCandidatesByCota, filterCandidatesByVagaSelecionada } from '../../store/slices/candidatesSlice';
 import SortableTableHeader from './SortableTableHeader';
 
+import '../../styles/components/candidatesTable.css';
+
 const CandidatesTable = () => {
   const { filteredData, sortConfig, filterCotaCandidato, filterVagaSelecionada } = useSelector(state => state.candidates);
   const dispatch = useDispatch();

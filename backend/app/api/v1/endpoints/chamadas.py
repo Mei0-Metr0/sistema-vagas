@@ -54,7 +54,7 @@ async def upload_csv(
         logging.exception("Erro interno não esperado no upload_csv")
         raise HTTPException(status_code=500, detail=f"Erro interno ao processar o arquivo: {str(e)}")
 
-@router.post("/definir-vagas", summary="Definir quantidade de vagas por cota para o edital")
+@router.post("/definir-vagas", summary="Definir quantidade de vagas por cota")
 async def definir_vagas(
     vagas: Vagas, 
     chamada_service: ChamadaService = Depends(get_chamada_service)

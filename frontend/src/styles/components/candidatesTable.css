@@ -1,0 +1,34 @@
+
+.candidatos-container .table {
+  font-size: 0.9rem; 
+}
+
+.candidatos-container 
+.table th, 
+.candidatos-container .table td {
+  padding: 0.3rem; 
+}
+
+.candidatos-container .table-sortable th {
+  cursor: pointer;
+  position: relative;
+  user-select: none;
+}
+
+@media (max-width: 768px) {
+  .candidatos-container .filter-options {
+    margin-top: 10px;
+    width: 100%;
+    flex-direction: column;
+  }
+  .candidatos-container .filter-options > div {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+  .candidatos-container .filter-options > div:last-child {
+    margin-bottom: 0;
+  }
+  .candidatos-container .filter-options .form-select {
+    width: 100% !important;
+  }
+}

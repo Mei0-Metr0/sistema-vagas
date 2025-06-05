@@ -1,0 +1,65 @@
+:root {
+  /* Cores Primárias e de Acento */
+  --color-primary: #007bff;
+  --color-primary-dark: #0069d9;
+  --color-primary-light-bg: #e9ecef; /* Usado para .dragging bg, .tag bg */
+
+  /* Cores de Feedback (Alertas) */
+  --color-success-bg: #d4edda;
+  --color-success-border: #c3e6cb;
+  --color-success-text: #155724;
+  --color-error-bg: #f8d7da;
+  --color-error-border: #f5c6cb;
+  --color-error-text: #721c24;
+  --color-info-bg: #d1ecf1;
+  --color-info-border: #bee5eb;
+  --color-info-text: #0c5460;
+  --color-warning-bg: #fff3cd;
+  --color-warning-border: #ffeeba;
+  --color-warning-text: #856404;
+
+  /* Cores de Texto */
+  --color-text-dark: #333;
+  --color-text-medium: #666;
+  --color-text-light: #f0f0f0;
+  --color-text-muted: #6c757d;
+  --color-text-dark-gray: #444;
+
+  /* Cores de Fundo */
+  --color-white: #ffffff;
+  --color-background-body: #f8f9fa;
+  --color-background-light: #f8f9fa;
+  --color-background-very-light: #f9f9f9;
+  --color-background-hover-light: #f1f1f1;
+  --color-background-off-white: #f9f9f9;
+  --color-background-almost-white: #fdfdfd;
+  --color-card-header-bg: #f1f8ff;
+  --color-card-header-bg-minimal: var(--color-background-off-white);
+
+  /* Cores de Borda */
+  --color-border-neutral: #ccc;
+  --color-border-medium: #ced4da;
+  --color-border-light: #f0f0f0;
+  --color-border-very-light: #f5f5f5;
+  --color-border-extra-light: #e0e0e0;
+
+  /* Outras Cores */
+  --color-danger: #dc3545;
+  --color-tag-bg: var(--color-primary-light-bg);
+  --color-disabled-bg: #b0b0b0;
+
+  /* Sombras */
+  --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  --shadow-minimal: 0 1px 4px rgba(0, 0, 0, 0.03);
+  --shadow-focus-primary: 0 0 0 2px rgba(0, 123, 255, 0.1);
+  --shadow-btn-primary: 0 1px 3px rgba(0, 123, 255, 0.15);
+  --shadow-btn-primary-hover: 0 2px 5px rgba(0, 123, 255, 0.2);
+
+  /* Fontes */
+  --font-family-sans-serif: 'Poppins', sans-serif;
+
+  /* Botões */
+  --color-primary-rgb: 0,123,255;
+  --color-secondary-rgb: 108,117,125;
+  --color-success-rgb: 21,87,36;
+}

@@ -7,7 +7,7 @@ export const useCsvPreview = () => {
   const generatePreview = (file) => {
     Papa.parse(file, {
       header: true,
-      preview: 10, // Mostrar apenas as primeiras 10 linhas para preview
+      preview: 10, // Mostra apenas as primeiras 10 linhas
       complete: (results) => {
         setPreview({
           headers: results.meta.fields,

@@ -1,0 +1,38 @@
+.csv-drop-zone {
+  border: 2px dashed var(--color-border-neutral);
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  transition: border-color 0.3s ease, background-color 0.3s ease;
+  background-color: var(--color-background-very-light);
+  cursor: pointer;
+}
+
+.csv-drop-zone.dragging {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-light-bg);
+}
+
+.csv-drop-zone:hover {
+  background-color: var(--color-background-hover-light);
+}
+
+.csv-drop-zone .form-label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.upload-button-container {
+  margin-top: 1.5rem;
+}
+
+.csv-preview-table-container {
+  font-size: 0.9rem;
+}
+
+.csv-preview-table-container table th,
+.csv-preview-table-container table td {
+  padding: 0.3rem;
+}

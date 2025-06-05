@@ -98,7 +98,7 @@ class ChamadaService:
                 c for c in candidatos_elegiveis_geral
                 if c.cota == TipoCota.LB_Q
             ]
-        elif passo == 9: # LB_PPI (específico baixa renda PPI)
+        elif passo == 9: # LB_PPI (específico baixa renda Preto Parto Indigena)
             return [
                 c for c in candidatos_elegiveis_geral
                 if c.cota == TipoCota.LB_PPI

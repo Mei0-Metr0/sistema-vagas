@@ -17,6 +17,7 @@ const CallGenerationSection = () => {
   const { currentCall, vacanciesInfo, balance } = useSelector(state => state.call);
   const dispatch = useDispatch();
 
+  // Função para lidar com a geração da chamada
   const handleGenerateCall = async (multiplier) => {
     setStatus({ message: '', type: '' }); 
 
@@ -70,16 +71,10 @@ const CallGenerationSection = () => {
           message: 'Resposta recebida do servidor, mas dados da chamada estão incompletos ou ausentes.',
           type: 'warning'
         });
-        // Opcional: limpar dados das tabelas se a resposta for inválida
-        // dispatch(setCallData({ chamada_num: currentCall, vagas_info: [], saldo_vagas: [] }));
-        // dispatch(setCandidates([]));
       }
     } catch (errCaught) {
       console.error("Erro em handleGenerateCall:", errCaught);
       setStatus({ message: '', type: '' });
-      // Opcional: limpar dados das tabelas em caso de erro
-      // dispatch(setCallData({ chamada_num: currentCall, vagas_info: [], saldo_vagas: [] }));
-      // dispatch(setCandidates([]));
     }
   };
 
@@ -91,7 +86,7 @@ const CallGenerationSection = () => {
         </div>
         <div className="col-md-6 d-flex align-items-end">
           <button
-            className="btn btn-primary w-100"
+            className="btn-app btn-app-primary w-100"
             onClick={() => {
                 const multiplierInput = document.getElementById('fator-multiplicacao');
                 const currentMultiplier = multiplierInput ? parseFloat(multiplierInput.value) : 1.0;
@@ -104,9 +99,11 @@ const CallGenerationSection = () => {
         </div>
       </div>
 
+      {/* Exibe erros da API, se houver */}
       {apiErrorHook && <Alert message={apiErrorHook} type="error" />}
       {!apiErrorHook && status.message && <Alert message={status.message} type={status.type} />}
 
+      {/* Exibe as estatísticas apenas se a chamada foi gerada com sucesso ou se já existem informações de vagas */}
       {((status.type === 'success' && !apiErrorHook) || vacanciesInfo.length > 0 || balance.length > 0) && (
         <div className="mt-4">
           <h4 className="estatisticas-chamada">Estatísticas da {currentCall}ª chamada</h4>
@@ -129,12 +126,12 @@ const CallGenerationSection = () => {
 
           <CandidatesTable />
 
-          {/* Link de download - Certifique-se que currentCall é o número da chamada gerada */}
+          {/* Link de download */}
           {currentCall > 0 && (
             <div className="mt-3">
               <a
                 href={`${import.meta.env.VITE_API_BASE_URL || '/api/v1'}/chamadas/exportar/${currentCall}`}
-                className="btn btn-success"
+                className="btn-app btn-app-success"
                 download
               >
                 Download da {currentCall}ª chamada

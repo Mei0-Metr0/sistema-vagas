@@ -10,7 +10,7 @@ import Alert from '../alerts/Alert';
 import Card from '../ui/Card';
 import VacanciesTable from '../tables/VacanciesTable';
 
-import '../../styles/components/forms.css'; 
+import '../../styles/components/nonApprovedSection.css';
 
 const NonApprovedSection = () => {
   const { request, loading, error } = useApi();
@@ -175,7 +175,7 @@ const NonApprovedSection = () => {
       <div className="d-flex justify-content-between mt-3">
         <button 
           id="marcar-nao-homologados" 
-          className="btn btn-primary"
+          className="btn-app btn-app-primary"
           onClick={handleMarkNonApproved}
           disabled={loading}
         >
@@ -183,7 +183,7 @@ const NonApprovedSection = () => {
         </button>
         <button 
           id="pular-homologacao" 
-          className="btn btn-secondary"
+          className="btn-app btn-app-secondary"
           onClick={handleSkipApproval}
           disabled={loading}
         >

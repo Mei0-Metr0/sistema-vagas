@@ -3,6 +3,7 @@ import { useApi } from '../../hooks/useApi';
 import Alert from '../alerts/Alert';
 
 const CotaDistributionForm = ({ onConfirm, status, loading }) => {
+  
   const [cotas, setCotas] = useState({
     AC: 22,
     LI_EP: 6,
@@ -153,7 +154,6 @@ const CotaDistributionForm = ({ onConfirm, status, loading }) => {
         onClick={handleConfirm}
         disabled={loading}
       >
-        Confirmar
       </button>
     </>
   );

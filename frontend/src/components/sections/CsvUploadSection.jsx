@@ -3,7 +3,8 @@ import { useApi } from '../../hooks/useApi';
 import { useCsvPreview } from '../../hooks/useCsvPreview';
 import Alert from '../alerts/Alert';
 import Card from '../ui/Card';
-import '../../styles/components/upload.css';
+
+import '../../styles/components/csvUploadSection.css';
 
 const CsvUploadSection = () => {
   const [file, setFile] = useState(null);
@@ -129,7 +130,7 @@ const CsvUploadSection = () => {
 
           <div className="upload-button-container">
             <button
-              className="btn btn-primary upload-button"
+              className="btn-app btn-app-primary upload-button"
               onClick={(e) => {
                 e.stopPropagation(); // Impede que o clique propague para a área do drop zone
                 handleUpload();

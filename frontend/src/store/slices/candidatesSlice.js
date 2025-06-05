@@ -25,6 +25,7 @@ export const candidatesSlice = createSlice({
     sortCandidates: (state, action) => {
       state.sortConfig = action.payload;
       state.filteredData = applyFiltersAndSorting(
+        state.data,
         state.filterCotaCandidato,
         state.filterVagaSelecionada,
         action.payload

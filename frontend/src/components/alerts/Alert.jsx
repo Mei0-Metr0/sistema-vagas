@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+
 import '../../styles/components/alerts.css'; 
 
 const Alert = ({ message, type = 'info', duration = 5000 }) => {

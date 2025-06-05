@@ -1,0 +1,124 @@
+.vacancy-distribution-section.card {
+  background-color: var(--color-white);
+  border: 1px solid var(--color-border-light);
+  box-shadow: var(--shadow-minimal);
+  border-radius: 6px;
+}
+
+.vacancy-distribution-section.card .card-header {
+  background-color: var(--color-card-header-bg-minimal);
+  border-bottom: 1px solid var(--color-border-very-light);
+  padding: 1rem 1.5rem;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.vacancy-distribution-section.card .card-header h2 {
+  color: var(--color-text-dark);
+  margin-bottom: 0;
+  font-family: var(--font-family-sans-serif);
+  font-weight: 600;
+  font-size: 1.3rem;
+}
+
+.vacancy-distribution-section.card .card-body {
+  padding: 1.5rem;
+}
+
+.vacancy-distribution-section .form-label {
+  font-weight: 400;
+  color: var(--color-text-medium);
+  margin-bottom: 0.3rem;
+  font-size: 0.825rem;
+}
+
+.vacancy-distribution-section .form-control {
+  border-radius: 4px;
+  border: 1px solid var(--color-border-extra-light);
+  padding: 0.6rem 0.8rem;
+  font-size: 0.875rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  background-color: var(--color-background-almost-white);
+  color: var(--color-text-dark);
+}
+
+.vacancy-distribution-section .form-control:focus {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-focus-primary);
+  background-color: var(--color-white);
+}
+
+.vacancy-distribution-section input[type="number"] {
+  -moz-appearance: textfield;
+}
+.vacancy-distribution-section input[type="number"]::-webkit-outer-spin-button,
+.vacancy-distribution-section input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.vacancy-distribution-section .alert-info-1 {
+  background-color: var(--color-background-very-light);
+  border: 1px solid var(--color-border-light);
+  color: var(--color-text-dark-gray);
+  border-radius: 4px;
+  padding: 0.75rem 1rem;
+  margin-top: 1.5rem;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: normal;
+}
+
+.vacancy-distribution-section #total-vagas-display {
+  font-weight: 600;
+  color: var(--color-primary);
+  margin-left: 0.2rem;
+}
+
+.vacancy-distribution-section .row > [class*="col-"] .mb-3 {
+    margin-bottom: 0.75rem !important; /* Reduz o mb-3 padrão do Bootstrap */
+}
+
+.vacancy-distribution-section .row > [class*="col-"] {
+    margin-bottom: 0.75rem;
+}
+.vacancy-distribution-section .row > [class*="col-"]:last-child {
+    margin-bottom: 0;
+}
+
+.vacancy-distribution-section .card-body > .row:last-of-type > [class*="col-"] {
+  margin-bottom: 0;
+}
+
+@media (max-width: 767.98px) {
+  .vacancy-distribution-section.card .card-header {
+    padding: 0.9rem 1.2rem;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .vacancy-distribution-section.card .card-header h2 {
+    margin-bottom: 0.5rem;
+  }
+  .vacancy-distribution-section.card .card-header .btn-primary {
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+
+  .vacancy-distribution-section .row > [class*="col-"] {
+    margin-bottom: 0.75rem;
+  }
+  /* Garante que mesmo o último filho em uma linha tenha margem se não for a última linha de inputs */
+   .vacancy-distribution-section .card-body > .row:not(:last-of-type) > [class*="col-"]:last-child {
+    margin-bottom: 0.75rem;
+  }
+   .vacancy-distribution-section .card-body > .row:last-of-type > [class*="col-"]:last-child {
+    margin-bottom: 0;
+  }
+
+  .vacancy-distribution-section.card .card-body {
+    padding: 1.2rem;
+  }
+}
