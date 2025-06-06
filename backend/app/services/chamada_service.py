@@ -1,4 +1,4 @@
-from typing import Tuple, List, Dict, Any
+from typing import List, Dict, Any
 from domain.entities import (
     Candidato, Vagas, ChamadaResult, CandidatoCreate
 )
@@ -20,6 +20,20 @@ class ChamadaService:
         7: TipoCota.LB_Q,
         8: TipoCota.LB_PPI
     }
+
+    PRIORIDADE_PREENCHIMENTO = {
+        TipoCota.LB_PPI: [TipoCota.LB_Q, TipoCota.LB_PCD, TipoCota.LB_EP, TipoCota.LI_PPI, TipoCota.LI_Q, TipoCota.LI_PCD, TipoCota.LI_EP, TipoCota.AC],
+        TipoCota.LB_Q: [TipoCota.LB_PPI, TipoCota.LB_PCD, TipoCota.LB_EP, TipoCota.LI_Q, TipoCota.LI_PPI, TipoCota.LI_PCD, TipoCota.LI_EP, TipoCota.AC],
+        TipoCota.LB_PCD: [TipoCota.LB_PPI, TipoCota.LB_Q, TipoCota.LB_EP, TipoCota.LI_PCD, TipoCota.LI_PPI, TipoCota.LI_Q, TipoCota.LI_EP, TipoCota.AC],
+        TipoCota.LB_EP: [TipoCota.LB_PPI, TipoCota.LB_Q, TipoCota.LB_PCD, TipoCota.LI_EP, TipoCota.LI_PPI, TipoCota.LI_Q, TipoCota.LI_PCD, TipoCota.AC],
+        TipoCota.LI_PPI: [TipoCota.LB_PPI, TipoCota.LB_Q, TipoCota.LB_PCD, TipoCota.LB_EP, TipoCota.LI_Q, TipoCota.LI_PCD, TipoCota.LI_EP, TipoCota.AC],
+        TipoCota.LI_Q: [TipoCota.LB_PPI, TipoCota.LB_Q, TipoCota.LB_PCD, TipoCota.LB_EP, TipoCota.LI_PPI, TipoCota.LI_PCD, TipoCota.LI_EP, TipoCota.AC],
+        TipoCota.LI_PCD: [TipoCota.LB_PPI, TipoCota.LB_Q, TipoCota.LB_PCD, TipoCota.LB_EP, TipoCota.LI_PPI, TipoCota.LI_Q, TipoCota.LI_EP, TipoCota.AC],
+        TipoCota.LI_EP: [TipoCota.LB_PPI, TipoCota.LB_Q, TipoCota.LB_PCD, TipoCota.LB_EP, TipoCota.LI_PPI, TipoCota.LI_Q, TipoCota.LI_PCD, TipoCota.AC],
+        TipoCota.AC: [TipoCota.LB_PPI, TipoCota.LB_Q, TipoCota.LB_PCD, TipoCota.LB_EP, TipoCota.LI_PPI, TipoCota.LI_Q, TipoCota.LI_PCD, TipoCota.LI_EP]
+    }
+
+    COTA_PARA_PASSO = {v: k + 1 for k, v in INDICE_PARA_COTA.items()}
 
     def __init__(self, repository: InMemoryRepository):
         self.repo = repository
@@ -144,10 +158,10 @@ class ChamadaService:
         if not self.repo.list_candidatos():
             raise NotFoundException("Nenhum candidato carregado. Faça o upload do CSV primeiro.")
         
-        vagas_base_para_calculo_oferta = self.repo.get_vagas() 
+        vagas_base_para_calculo_oferta = self.repo.get_vagas()
         if not vagas_base_para_calculo_oferta or sum(vagas_base_para_calculo_oferta.dict().values()) == 0:
-             vagas_base_para_calculo_oferta = self.repo.get_vagas_originais()
-             if not vagas_base_para_calculo_oferta:
+            vagas_base_para_calculo_oferta = self.repo.get_vagas_originais()
+            if not vagas_base_para_calculo_oferta:
                 raise ValidationException("Vagas não definidas. Defina as vagas na primeira etapa.")
 
         chamada_num = self.repo.get_chamada_num()
@@ -157,41 +171,62 @@ class ChamadaService:
             for cota in TipoCota
         }
 
-        vagas_ofertadas_dict_for_model = {
-            cota_enum.value: count 
-            for cota_enum, count in vagas_ofertadas_nesta_chamada.items()
-        }
+        vagas_ofertadas_dict_for_model = {c.value: v for c, v in vagas_ofertadas_nesta_chamada.items()}
         vagas_ofertadas_obj_para_repo = Vagas(**vagas_ofertadas_dict_for_model)
         self.repo.set_vagas_ofertadas_na_ultima_chamada_gerada(vagas_ofertadas_obj_para_repo)
         
-        saldo_vagas_passos = [0] * len(self.INDICE_PARA_COTA)  
-        tamanho_lista_passos = [0] * len(self.INDICE_PARA_COTA) 
-        vagas_preenchidas_passos = [0] * len(self.INDICE_PARA_COTA) 
+        tamanho_lista_passos = [0] * len(self.INDICE_PARA_COTA)
+        vagas_preenchidas_passos = [0] * len(self.INDICE_PARA_COTA)
 
         candidatos_todos_do_repo = self.repo.list_candidatos()
         candidatos_ordenados_globalmente = self._ordenar_por_nota(candidatos_todos_do_repo)
 
         for passo_idx in range(len(self.INDICE_PARA_COTA)):
             passo_num = passo_idx + 1
-            cota_do_passo_atual = self.INDICE_PARA_COTA[passo_idx]
+            cota_alvo_do_passo = self.INDICE_PARA_COTA[passo_idx]
             
+            # --- Lógica principal dos Passos 1 a 9 ---
             candidatos_filtrados_para_este_passo = self._filtrar_candidatos(candidatos_ordenados_globalmente, passo_num)
             tamanho_lista_passos[passo_idx] = len(candidatos_filtrados_para_este_passo)
             
-            vagas_para_ofertar_na_cota_do_passo = vagas_ofertadas_nesta_chamada.get(cota_do_passo_atual, 0) # Usar .get com default
+            vagas_para_ofertar = vagas_ofertadas_nesta_chamada.get(cota_alvo_do_passo, 0)
             
-            if vagas_para_ofertar_na_cota_do_passo > 0 and tamanho_lista_passos[passo_idx] > 0 :
-                v_preenchidas = self._executar_passo(
-                    cota_alvo_do_passo=cota_do_passo_atual,
-                    vagas_ofertadas_para_cota_do_passo=vagas_para_ofertar_na_cota_do_passo,
+            vagas_preenchidas_no_passo_principal = 0
+            if vagas_para_ofertar > 0:
+                vagas_preenchidas_no_passo_principal = self._executar_passo(
+                    cota_alvo_do_passo=cota_alvo_do_passo,
+                    vagas_ofertadas_para_cota_do_passo=vagas_para_ofertar,
                     chamada_num=chamada_num,
                     candidatos_ordenados_e_filtrados_para_passo=candidatos_filtrados_para_este_passo
                 )
-                vagas_preenchidas_passos[passo_idx] = v_preenchidas
-                saldo_vagas_passos[passo_idx] = vagas_para_ofertar_na_cota_do_passo - v_preenchidas 
-            else:
-                vagas_preenchidas_passos[passo_idx] = 0
-                saldo_vagas_passos[passo_idx] = vagas_para_ofertar_na_cota_do_passo 
+                vagas_preenchidas_passos[passo_idx] += vagas_preenchidas_no_passo_principal
+            
+            # --- IMPLEMENTAÇÃO DO PASSO 10 ---
+            vagas_remanescentes = vagas_para_ofertar - vagas_preenchidas_no_passo_principal
+            if vagas_remanescentes > 0:
+                # Se sobraram vagas, busca candidatos em outras cotas conforme a prioridade
+                lista_de_prioridades = self.PRIORIDADE_PREENCHIMENTO.get(cota_alvo_do_passo, [])
+                
+                for cota_fallback in lista_de_prioridades:
+                    if vagas_remanescentes == 0:
+                        break # Para o loop de fallback se as vagas já foram preenchidas
+
+                    passo_fallback = self.COTA_PARA_PASSO[cota_fallback]
+                    candidatos_fallback = self._filtrar_candidatos(candidatos_ordenados_globalmente, passo_fallback)
+                    
+                    if not candidatos_fallback:
+                        continue # Pula para a próxima cota de prioridade se não houver candidatos
+
+                    vagas_preenchidas_no_fallback = self._executar_passo(
+                        cota_alvo_do_passo=cota_alvo_do_passo, # IMPORTANTE: A vaga preenchida é a do passo original!
+                        vagas_ofertadas_para_cota_do_passo=vagas_remanescentes,
+                        chamada_num=chamada_num,
+                        candidatos_ordenados_e_filtrados_para_passo=candidatos_fallback
+                    )
+                    
+                    vagas_preenchidas_passos[passo_idx] += vagas_preenchidas_no_fallback
+                    vagas_remanescentes -= vagas_preenchidas_no_fallback
+            # --- FIM DA IMPLEMENTAÇÃO DO PASSO 10 ---
 
         saldo_candidatos_vs_oferta_list = []
         for i in range(len(self.INDICE_PARA_COTA)):
