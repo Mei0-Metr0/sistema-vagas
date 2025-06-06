@@ -33,7 +33,9 @@ class FileService:
                     nota_final=float(row['Nota Final']),
                     cota=row['Cota do Candidato'],
                     nome=row.get('Nome', ''),
-                    email=row.get('E-mail', '')
+                    email=row.get('E-mail', ''),
+                    campus=row.get('Campus', ''),
+                    curso=row.get('Curso', '')
                 ))
             except (ValueError, TypeError, KeyError) as e:
                 cpf = row.get('CPF', 'N/A')

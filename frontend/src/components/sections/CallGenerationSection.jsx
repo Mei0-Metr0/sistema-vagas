@@ -47,6 +47,8 @@ const CallGenerationSection = () => {
 
         const transformedCandidates = (backendResponse.candidatos_chamados || []).map(cand => ({
           'ID': cand.id,
+          'Campus': cand.campus || '',
+          'Curso': cand.curso || '',
           'CPF': cand.cpf,
           'Nome': cand.nome || '',
           'E-mail': cand.email || '',

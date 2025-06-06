@@ -6,6 +6,8 @@ class CandidatoBase(BaseModel):
     cpf: str
     nome: Optional[str] = None
     email: Optional[str] = None
+    campus: Optional[str] = None
+    curso: Optional[str] = None
 
 class CandidatoCreate(CandidatoBase):
     nota_final: float

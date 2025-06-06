@@ -9,7 +9,7 @@ export const useCsvPreview = () => {
       header: true,
       preview: 10, // Mostra apenas as primeiras 10 linhas
       delimiter: ';',
-      //encoding: 'ISO-8859-1',
+      encoding: 'ISO-8859-1',
       complete: (results) => {
         const cleanedHeaders = results.meta.fields.map(h => h.trim());
         const cleanedRows = results.data.map(row => {
