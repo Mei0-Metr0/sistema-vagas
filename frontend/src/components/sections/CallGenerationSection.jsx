@@ -14,6 +14,7 @@ const CallGenerationSection = () => {
   const [status, setStatus] = useState({ message: '', type: '' });
 
   const { currentCall, vacanciesInfo, balance } = useSelector(state => state.call);
+  const { data: candidates } = useSelector(state => state.candidates);
   const dispatch = useDispatch();
 
   const handleGenerateCall = async (multiplier) => {
@@ -128,13 +129,26 @@ const CallGenerationSection = () => {
 
           {currentCall > 0 && (
             <div className="mt-3">
-              <a
-                href={`${import.meta.env.VITE_API_BASE_URL || '/api/v1'}/chamadas/exportar/${currentCall}`}
+              <button
                 className="btn-app btn-app-success"
-                download
+                disabled={candidates.length === 0}
+                onClick={() => {
+                  if (candidates.length > 0) {
+                    const url = `${import.meta.env.VITE_API_BASE_URL || '/api/v1'}/chamadas/exportar/${currentCall}`;
+                    window.location.href = url;
+                  }
+                }}
+                title={
+                  candidates.length === 0
+                    ? "Não há candidatos nesta chamada para exportar"
+                    : `Exportar chamada ${currentCall} para CSV`
+                }
               >
-                Download da {currentCall}ª chamada
-              </a>
+                {candidates.length > 0
+                  ? `Download da ${currentCall}ª chamada`
+                  : 'Nenhum candidato para baixar'
+                }
+              </button>
             </div>
           )}
         </div>
