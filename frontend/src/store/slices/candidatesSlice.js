@@ -6,6 +6,11 @@ const initialState = {
   sortConfig: { key: 'Nota Final', direction: 'desc' },
   filterCotaCandidato: 'todas',
   filterVagaSelecionada: 'todas',
+  // Novos estados para os filtros e suas opções
+  filterCampus: 'todos',
+  filterCurso: 'todos',
+  availableCampi: [],
+  availableCursos: [],
   nonApprovedCpfs: []
 };
 
@@ -15,39 +20,39 @@ export const candidatesSlice = createSlice({
   reducers: {
     setCandidates: (state, action) => {
       state.data = action.payload;
+
+      // Extrai opções únicas de Campus e Curso dos dados carregados
+      const allCampi = [...new Set(action.payload.map(c => c['Campus']).filter(Boolean))].sort();
+      const allCursos = [...new Set(action.payload.map(c => c['Curso']).filter(Boolean))].sort();
+      state.availableCampi = ['todos', ...allCampi];
+      state.availableCursos = ['todos', ...allCursos];
+
+      // Aplica os filtros (agora incluindo os novos)
       state.filteredData = applyFiltersAndSorting(
-        action.payload, 
-        state.filterCotaCandidato,
-        state.filterVagaSelecionada,
-        state.sortConfig
+        action.payload,
+        state
       );
     },
     sortCandidates: (state, action) => {
       state.sortConfig = action.payload;
-      state.filteredData = applyFiltersAndSorting(
-        state.data,
-        state.filterCotaCandidato,
-        state.filterVagaSelecionada,
-        action.payload
-      );
+      state.filteredData = applyFiltersAndSorting(state.data, state);
     },
     filterCandidatesByCota: (state, action) => {
       state.filterCotaCandidato = action.payload;
-      state.filteredData = applyFiltersAndSorting(
-        state.data,
-        action.payload,
-        state.filterVagaSelecionada,
-        state.sortConfig
-      );
+      state.filteredData = applyFiltersAndSorting(state.data, state);
     },
     filterCandidatesByVagaSelecionada: (state, action) => {
       state.filterVagaSelecionada = action.payload;
-      state.filteredData = applyFiltersAndSorting(
-        state.data,
-        state.filterCotaCandidato,
-        action.payload, 
-        state.sortConfig
-      );
+      state.filteredData = applyFiltersAndSorting(state.data, state);
+    },
+    // Novas actions para os filtros de Campus e Curso
+    filterCandidatesByCampus: (state, action) => {
+      state.filterCampus = action.payload;
+      state.filteredData = applyFiltersAndSorting(state.data, state);
+    },
+    filterCandidatesByCurso: (state, action) => {
+      state.filterCurso = action.payload;
+      state.filteredData = applyFiltersAndSorting(state.data, state);
     },
     addNonApprovedCpf: (state, action) => {
       state.nonApprovedCpfs = [...state.nonApprovedCpfs, action.payload];
@@ -62,40 +67,53 @@ export const candidatesSlice = createSlice({
   }
 });
 
-function applyFiltersAndSorting(data, filterCotaCandidato, filterVagaSelecionada, sortConfig) {
+function applyFiltersAndSorting(data, filters) {
   let filtered = [...data];
+  const { 
+    filterCotaCandidato, 
+    filterVagaSelecionada, 
+    filterCampus, 
+    filterCurso, 
+    sortConfig 
+  } = filters;
 
-  // Aplicar filtro por Cota do Candidato
+  // Aplicar filtros
   if (filterCotaCandidato !== 'todas') {
     filtered = filtered.filter(candidate => candidate['Cota do candidato'] === filterCotaCandidato);
   }
-
-  // Aplicar filtro por Vaga Selecionada
   if (filterVagaSelecionada !== 'todas') {
     filtered = filtered.filter(candidate => candidate['Vaga Selecionada'] === filterVagaSelecionada);
   }
-  
+  if (filterCampus !== 'todos') {
+    filtered = filtered.filter(candidate => candidate['Campus'] === filterCampus);
+  }
+  if (filterCurso !== 'todos') {
+    filtered = filtered.filter(candidate => candidate['Curso'] === filterCurso);
+  }
+
   // Aplicar ordenação
   return [...filtered].sort((a, b) => {
     let valueA = a[sortConfig.key];
     let valueB = b[sortConfig.key];
-    
+
     if (sortConfig.key === 'Nota Final') {
       valueA = parseFloat(valueA);
       valueB = parseFloat(valueB);
     }
-    
+
     if (valueA > valueB) return sortConfig.direction === 'asc' ? 1 : -1;
     if (valueA < valueB) return sortConfig.direction === 'asc' ? -1 : 1;
     return 0;
   });
 }
 
-export const { 
-  setCandidates, 
-  sortCandidates, 
+export const {
+  setCandidates,
+  sortCandidates,
   filterCandidatesByCota,
   filterCandidatesByVagaSelecionada,
+  filterCandidatesByCampus, // Exportar nova action
+  filterCandidatesByCurso,  // Exportar nova action
   addNonApprovedCpf,
   removeNonApprovedCpf,
   clearNonApprovedCpfs,
