@@ -5,6 +5,7 @@ import {
   filterCandidatesByVagaSelecionada,
   filterCandidatesByCampus,
   filterCandidatesByCurso,
+  filterCandidatesByTurno
 } from '../../store/slices/candidatesSlice';
 import SortableTableHeader from './SortableTableHeader';
 import SearchableDropdown from '../ui/SearchableDropdown';
@@ -18,8 +19,10 @@ const CandidatesTable = () => {
     filterVagaSelecionada,
     filterCampus,
     filterCurso,
+    filterTurno,
     availableCampi,
-    availableCursos
+    availableCursos,
+    availableTurno
   } = useSelector(state => state.candidates);
 
   const dispatch = useDispatch();
@@ -41,7 +44,7 @@ const CandidatesTable = () => {
   const handleFilterVagaSelecionadaChange = (e) => {
     dispatch(filterCandidatesByVagaSelecionada(e.target.value));
   };
-  
+
   const handleCampusChange = (campus) => {
     dispatch(filterCandidatesByCampus(campus));
   };
@@ -50,38 +53,54 @@ const CandidatesTable = () => {
     dispatch(filterCandidatesByCurso(curso));
   };
 
+  const handleTurnoChange = (turno) => {
+    dispatch(filterCandidatesByTurno(turno));
+  };
+
   const headers = filteredData.length > 0 ? Object.keys(filteredData[0]) : [];
 
   return (
     <div className="candidatos-container mt-4">
 
-      {/* LINHA 1: Filtros de Curso e Campus */}
-      <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap">
-        <h5 className="mb-0 me-3">Candidatos chamados</h5>
-        
-        <div style={{ minWidth: '400px' }}>
-          <label className="form-label d-none">FILTRAR POR CURSO:</label>
+      {/* LINHA 1: TÍTULO */}
+      <div className="mb-4">
+        <h5 className="mb-2 me-3 border-bottom pb-4">CANDIDATOS CHAMADOS</h5>
+      </div>
+
+      {/* LINHA 2: Filtros de Curso e Campus */}
+      <div className="row g-3 mb-0">
+        <div className='col-md-6'>
+          <label className="form-label">FILTRAR POR CURSO:</label>
           <SearchableDropdown
             options={availableCursos}
             value={filterCurso}
             onChange={handleCursoChange}
-            placeholder="Pesquisar por curso..."
+            placeholder="PESQUISAR POR CURSO..."
           />
         </div>
 
-        <div style={{ minWidth: '400px' }}>
-          <label className="form-label d-none">FILTRAR POR CAMPUS:</label>
+        <div className='col-md-6'>
+          <label className="form-label">FILTRAR POR CAMPUS:</label>
           <SearchableDropdown
             options={availableCampi}
             value={filterCampus}
             onChange={handleCampusChange}
-            placeholder="Pesquisar por campus..."
+            placeholder="PESQUISAR POR CAMPUS..."
           />
         </div>
       </div>
 
-      {/* LINHA 2: Filtros restantes (Campus, Cota, Vaga) */}
+      {/* LINHA 3: Filtros de Turno, Cota e Vaga */}
       <div className="row g-3 mb-3">
+        <div className="col-md-4">
+          <label className="form-label">FILTRAR POR TURNO:</label>
+          <SearchableDropdown
+            options={availableTurno}
+            value={filterTurno}
+            onChange={handleTurnoChange}
+            placeholder="PESQUISAR POR TURNO..."
+          />
+        </div>
         <div className="col-md-4">
           <label className="form-label">FILTRAR POR COTA:</label>
           <select
@@ -89,7 +108,7 @@ const CandidatesTable = () => {
             value={filterCotaCandidato}
             onChange={handleFilterCotaChange}
           >
-            <option value="todas">Todas as Cotas</option>
+            <option value="todas">TODAS AS COTAS</option>
             <option value="AC">AC</option>
             <option value="LI_EP">LI_EP</option>
             <option value="LI_PCD">LI_PCD</option>
@@ -108,7 +127,7 @@ const CandidatesTable = () => {
             value={filterVagaSelecionada}
             onChange={handleFilterVagaSelecionadaChange}
           >
-            <option value="todas">Todas as Vagas</option>
+            <option value="todas">TODAS AS VAGAS</option>
             <option value="AC">AC</option>
             <option value="LI_EP">LI_EP</option>
             <option value="LI_PCD">LI_PCD</option>
@@ -127,7 +146,7 @@ const CandidatesTable = () => {
           <thead>
             <tr>
               {headers.map(header => (
-                <SortableTableHeader 
+                <SortableTableHeader
                   key={header}
                   column={header}
                   sortConfig={sortConfig}

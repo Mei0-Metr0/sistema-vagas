@@ -35,7 +35,8 @@ class FileService:
                     nome=row.get('Nome', ''),
                     email=row.get('E-mail', ''),
                     campus=row.get('Campus', ''),
-                    curso=row.get('Curso', '')
+                    curso=row.get('Curso', ''),
+                    turno=row.get('Turno', '')
                 ))
             except (ValueError, TypeError, KeyError) as e:
                 cpf = row.get('CPF', 'N/A')

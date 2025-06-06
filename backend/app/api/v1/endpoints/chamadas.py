@@ -149,7 +149,7 @@ async def exportar_chamada(
             raise NotFoundException(detail=f"Nenhum candidato encontrado para a chamada {chamada_num} para exportação.")
             
         colunas_ordenadas = [
-            "id", "campus", "curso", "cpf", "nome", "email", "nota_final", 
+            "id", "campus", "curso", "turno", "cpf", "nome", "email", "nota_final", 
             "cota", "vaga_selecionada", "status", "chamada"
         ]
         

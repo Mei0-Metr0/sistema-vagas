@@ -9,8 +9,10 @@ const initialState = {
   // Novos estados para os filtros e suas opções
   filterCampus: 'todos',
   filterCurso: 'todos',
+  filterTurno: 'todos',
   availableCampi: [],
   availableCursos: [],
+  availableTurno: [],
   nonApprovedCpfs: []
 };
 
@@ -24,8 +26,10 @@ export const candidatesSlice = createSlice({
       // Extrai opções únicas de Campus e Curso dos dados carregados
       const allCampi = [...new Set(action.payload.map(c => c['Campus']).filter(Boolean))].sort();
       const allCursos = [...new Set(action.payload.map(c => c['Curso']).filter(Boolean))].sort();
+      const allTurnos = [...new Set(action.payload.map(c => c['Turno']).filter(Boolean))].sort();
       state.availableCampi = ['todos', ...allCampi];
       state.availableCursos = ['todos', ...allCursos];
+      state.availableTurno = ['todos', ...allTurnos];
 
       // Aplica os filtros (agora incluindo os novos)
       state.filteredData = applyFiltersAndSorting(
@@ -54,6 +58,10 @@ export const candidatesSlice = createSlice({
       state.filterCurso = action.payload;
       state.filteredData = applyFiltersAndSorting(state.data, state);
     },
+    filterCandidatesByTurno: (state, action) => {
+      state.filterTurno= action.payload;
+      state.filteredData = applyFiltersAndSorting(state.data, state);
+    },
     addNonApprovedCpf: (state, action) => {
       state.nonApprovedCpfs = [...state.nonApprovedCpfs, action.payload];
     },
@@ -73,7 +81,8 @@ function applyFiltersAndSorting(data, filters) {
     filterCotaCandidato, 
     filterVagaSelecionada, 
     filterCampus, 
-    filterCurso, 
+    filterCurso,
+    filterTurno,
     sortConfig 
   } = filters;
 
@@ -89,6 +98,9 @@ function applyFiltersAndSorting(data, filters) {
   }
   if (filterCurso !== 'todos') {
     filtered = filtered.filter(candidate => candidate['Curso'] === filterCurso);
+  }
+  if (filterTurno !== 'todos') {
+    filtered = filtered.filter(candidate => candidate['Turno'] === filterTurno);
   }
 
   // Aplicar ordenação
@@ -112,8 +124,9 @@ export const {
   sortCandidates,
   filterCandidatesByCota,
   filterCandidatesByVagaSelecionada,
-  filterCandidatesByCampus, // Exportar nova action
-  filterCandidatesByCurso,  // Exportar nova action
+  filterCandidatesByCampus,
+  filterCandidatesByCurso,
+  filterCandidatesByTurno,
   addNonApprovedCpf,
   removeNonApprovedCpf,
   clearNonApprovedCpfs,

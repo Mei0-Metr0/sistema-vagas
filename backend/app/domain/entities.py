@@ -8,6 +8,8 @@ class CandidatoBase(BaseModel):
     email: Optional[str] = None
     campus: Optional[str] = None
     curso: Optional[str] = None
+    turno: Optional[str] = None
+    
 
 class CandidatoCreate(CandidatoBase):
     nota_final: float

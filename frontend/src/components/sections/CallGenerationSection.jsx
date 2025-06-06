@@ -49,6 +49,7 @@ const CallGenerationSection = () => {
           'ID': cand.id,
           'Campus': cand.campus || '',
           'Curso': cand.curso || '',
+          'Turno': cand.turno || '',
           'CPF': cand.cpf,
           'Nome': cand.nome || '',
           'E-mail': cand.email || '',
@@ -103,8 +104,8 @@ const CallGenerationSection = () => {
 
       {((status.type === 'success' && !apiErrorHook) || (vacanciesInfo && vacanciesInfo.length > 0) || (balance && balance.length > 0)) && (
         <div className="mt-4">
-          <h4 className="estatisticas-chamada">Estatísticas da {currentCall}ª chamada</h4>
-          <div className="row">
+          <h4 className="mb-2 me-3 border-bottom pb-4">ESTATÍSTICAS DA {currentCall}ª CHAMADA</h4>
+          <div className="row mt-4">
             <div className="col-md-6">
               <h5>Saldo de vagas por cota</h5>
               <VacanciesTable
