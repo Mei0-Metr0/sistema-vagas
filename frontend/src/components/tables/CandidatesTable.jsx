@@ -7,6 +7,7 @@ import {
   filterCandidatesByCurso,
   filterCandidatesByTurno
 } from '../../store/slices/candidatesSlice';
+
 import SortableTableHeader from './SortableTableHeader';
 import SearchableDropdown from '../ui/SearchableDropdown';
 import '../../styles/components/candidatesTable.css';

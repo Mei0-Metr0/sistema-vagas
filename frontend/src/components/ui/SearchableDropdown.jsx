@@ -35,13 +35,13 @@ const SearchableDropdown = ({ options, value, onChange, placeholder = "Selecione
         <input
           type="text"
           className="form-control dropdown-input"
-          placeholder={value === 'todos' ? placeholder : value}
+          placeholder={value === 'TODOS' ? placeholder : value}
           onFocus={() => setIsOpen(true)}
           onChange={(e) => {
             setSearchTerm(e.target.value);
             setIsOpen(true);
           }}
-          value={isOpen ? searchTerm : (value === 'todos' ? '' : value)}
+          value={isOpen ? searchTerm : (value === 'TODOS' ? '' : value)}
         />
         <span className="dropdown-caret">▼</span>
       </div>

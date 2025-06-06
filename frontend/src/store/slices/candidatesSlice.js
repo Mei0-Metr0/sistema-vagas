@@ -7,9 +7,9 @@ const initialState = {
   filterCotaCandidato: 'todas',
   filterVagaSelecionada: 'todas',
   // Novos estados para os filtros e suas opções
-  filterCampus: 'todos',
-  filterCurso: 'todos',
-  filterTurno: 'todos',
+  filterCampus: 'TODOS',
+  filterCurso: 'TODOS',
+  filterTurno: 'TODOS',
   availableCampi: [],
   availableCursos: [],
   availableTurno: [],
@@ -27,9 +27,9 @@ export const candidatesSlice = createSlice({
       const allCampi = [...new Set(action.payload.map(c => c['Campus']).filter(Boolean))].sort();
       const allCursos = [...new Set(action.payload.map(c => c['Curso']).filter(Boolean))].sort();
       const allTurnos = [...new Set(action.payload.map(c => c['Turno']).filter(Boolean))].sort();
-      state.availableCampi = ['todos', ...allCampi];
-      state.availableCursos = ['todos', ...allCursos];
-      state.availableTurno = ['todos', ...allTurnos];
+      state.availableCampi = ['TODOS', ...allCampi];
+      state.availableCursos = ['TODOS', ...allCursos];
+      state.availableTurno = ['TODOS', ...allTurnos];
 
       // Aplica os filtros (agora incluindo os novos)
       state.filteredData = applyFiltersAndSorting(
@@ -93,13 +93,13 @@ function applyFiltersAndSorting(data, filters) {
   if (filterVagaSelecionada !== 'todas') {
     filtered = filtered.filter(candidate => candidate['Vaga Selecionada'] === filterVagaSelecionada);
   }
-  if (filterCampus !== 'todos') {
+  if (filterCampus !== 'TODOS') {
     filtered = filtered.filter(candidate => candidate['Campus'] === filterCampus);
   }
-  if (filterCurso !== 'todos') {
+  if (filterCurso !== 'TODOS') {
     filtered = filtered.filter(candidate => candidate['Curso'] === filterCurso);
   }
-  if (filterTurno !== 'todos') {
+  if (filterTurno !== 'TODOS') {
     filtered = filtered.filter(candidate => candidate['Turno'] === filterTurno);
   }
 
