@@ -7,17 +7,17 @@ class FileProcessor:
     @staticmethod
     def csv_to_dict(file_content: bytes) -> List[Dict[str, Any]]:
         try:
-            csv_data = StringIO(file_content.decode('utf-8'))
+            csv_data = StringIO(file_content.decode('iso-8859-1'))
             df = pd.read_csv(csv_data)
             return df.to_dict('records')
         except Exception as e:
-            raise InvalidFileException(f"Erro ao processar CSV: {e.detail}")
+            raise InvalidFileException(f"Erro ao processar CSV: {str(e)}")
 
     @staticmethod
     def dict_to_csv(data: List[Dict[str, Any]]) -> bytes:
         try:
             df = pd.DataFrame(data)
             csv_content = df.to_csv(index=False)
-            return csv_content.encode('utf-8')
+            return csv_content.encode('iso-8859-1')
         except Exception as e:
-            raise InvalidFileException(f"Erro ao gerar CSV: {e.detail}")
+            raise InvalidFileException(f"Erro ao gerar CSV: {str(e)}")

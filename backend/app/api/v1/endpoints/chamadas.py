@@ -205,9 +205,7 @@ async def reset_sistema_endpoint(
     chamada_service: ChamadaService = Depends(get_chamada_service)
 ):
     try:
-        logging.info("Recebida requisição para resetar o sistema.")
         chamada_service.reset_sistema()
-        logging.info("Sistema resetado com sucesso.")
         return {"status": "success", "message": "Sistema resetado para o estado inicial com sucesso."}
     except Exception as e:
         logging.exception("Erro ao resetar o sistema no endpoint /reset-sistema")

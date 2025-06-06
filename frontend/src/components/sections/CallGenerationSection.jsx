@@ -49,7 +49,7 @@ const CallGenerationSection = () => {
           'ID': cand.id,
           'CPF': cand.cpf,
           'Nome': cand.nome || '',
-          'Email': cand.email || '',
+          'E-mail': cand.email || '',
           'Nota Final': cand.nota_final,
           'Cota do candidato': cand.cota,
           'Vaga Selecionada': cand.vaga_selecionada,

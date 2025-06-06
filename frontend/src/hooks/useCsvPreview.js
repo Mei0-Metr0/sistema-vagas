@@ -8,10 +8,21 @@ export const useCsvPreview = () => {
     Papa.parse(file, {
       header: true,
       preview: 10, // Mostra apenas as primeiras 10 linhas
+      delimiter: ';',
+      //encoding: 'ISO-8859-1',
       complete: (results) => {
+        const cleanedHeaders = results.meta.fields.map(h => h.trim());
+        const cleanedRows = results.data.map(row => {
+            const newRow = {};
+            for (const key in row) {
+                newRow[key.trim()] = row[key];
+            }
+            return newRow;
+        });
+
         setPreview({
-          headers: results.meta.fields,
-          rows: results.data
+          headers: cleanedHeaders,
+          rows: cleanedRows
         });
       },
       error: (error) => {
