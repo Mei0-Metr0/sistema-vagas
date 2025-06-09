@@ -80,7 +80,7 @@ const CallGenerationSection = () => {
   };
 
   return (
-    <Card title="3. Gerar chamada">
+    <Card title="3. GERAR CHAMADA">
       <div className="row mb-3">
         <div className="col-md-6">
           <MultiplierForm

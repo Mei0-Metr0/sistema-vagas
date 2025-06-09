@@ -104,7 +104,7 @@ const CsvUploadSection = () => {
     }, [processFile]);
 
     return (
-    <Card title="1. Upload do CSV">
+    <Card title="1. UPLOAD DO CSV">
         <div className="row">
             <div className="col-md-9">
                 <label htmlFor="csv-file" className="form-label fw-bold">

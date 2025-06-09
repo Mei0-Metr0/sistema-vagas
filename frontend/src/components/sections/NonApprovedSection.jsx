@@ -119,7 +119,7 @@ const NonApprovedSection = () => {
 
   return (
     <Card 
-      title="4. Informar candidatos não homologados" 
+      title="4. CANDIDATOS NÃO HOMOLOGADOS" 
       className="mb-4" 
       style={{ display: 'none' }}
     >
