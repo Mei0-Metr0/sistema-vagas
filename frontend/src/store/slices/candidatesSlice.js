@@ -7,12 +7,6 @@ const initialState = {
   sortConfig: { key: 'Nota Final', direction: 'desc' },
   filterCotaCandidato: 'todas',
   filterVagaSelecionada: 'todas',
-  filterCampus: 'TODOS',
-  filterCurso: 'TODOS',
-  filterTurno: 'TODOS',
-  availableCampi: [],
-  availableCursos: [],
-  availableTurno: [],
   nonApprovedCpfs: []
 };
 
@@ -25,14 +19,6 @@ export const candidatesSlice = createSlice({
     },
     setCandidates: (state, action) => {
       state.data = action.payload;
-
-      // Extrai opções únicas de Campus e Curso dos dados carregados
-      const allCampi = [...new Set(action.payload.map(c => c['Campus']).filter(Boolean))].sort();
-      const allCursos = [...new Set(action.payload.map(c => c['Curso']).filter(Boolean))].sort();
-      const allTurnos = [...new Set(action.payload.map(c => c['Turno']).filter(Boolean))].sort();
-      state.availableCampi = ['TODOS', ...allCampi];
-      state.availableCursos = ['TODOS', ...allCursos];
-      state.availableTurno = ['TODOS', ...allTurnos];
 
       // Aplica os filtros (agora incluindo os novos)
       state.filteredData = applyFiltersAndSorting(
@@ -52,19 +38,6 @@ export const candidatesSlice = createSlice({
       state.filterVagaSelecionada = action.payload;
       state.filteredData = applyFiltersAndSorting(state.data, state);
     },
-    // Novas actions para os filtros de Campus e Curso
-    filterCandidatesByCampus: (state, action) => {
-      state.filterCampus = action.payload;
-      state.filteredData = applyFiltersAndSorting(state.data, state);
-    },
-    filterCandidatesByCurso: (state, action) => {
-      state.filterCurso = action.payload;
-      state.filteredData = applyFiltersAndSorting(state.data, state);
-    },
-    filterCandidatesByTurno: (state, action) => {
-      state.filterTurno= action.payload;
-      state.filteredData = applyFiltersAndSorting(state.data, state);
-    },
     addNonApprovedCpf: (state, action) => {
       state.nonApprovedCpfs = [...state.nonApprovedCpfs, action.payload];
     },
@@ -82,10 +55,7 @@ function applyFiltersAndSorting(data, filters) {
   let filtered = [...data];
   const { 
     filterCotaCandidato, 
-    filterVagaSelecionada, 
-    filterCampus, 
-    filterCurso,
-    filterTurno,
+    filterVagaSelecionada,
     sortConfig 
   } = filters;
 
@@ -95,15 +65,6 @@ function applyFiltersAndSorting(data, filters) {
   }
   if (filterVagaSelecionada !== 'todas') {
     filtered = filtered.filter(candidate => candidate['Vaga Selecionada'] === filterVagaSelecionada);
-  }
-  if (filterCampus !== 'TODOS') {
-    filtered = filtered.filter(candidate => candidate['Campus'] === filterCampus);
-  }
-  if (filterCurso !== 'TODOS') {
-    filtered = filtered.filter(candidate => candidate['Curso'] === filterCurso);
-  }
-  if (filterTurno !== 'TODOS') {
-    filtered = filtered.filter(candidate => candidate['Turno'] === filterTurno);
   }
 
   // Aplicar ordenação
@@ -128,9 +89,6 @@ export const {
   sortCandidates,
   filterCandidatesByCota,
   filterCandidatesByVagaSelecionada,
-  filterCandidatesByCampus,
-  filterCandidatesByCurso,
-  filterCandidatesByTurno,
   addNonApprovedCpf,
   removeNonApprovedCpf,
   clearNonApprovedCpfs,
