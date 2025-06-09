@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, Body
+from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, Body, Query
 from typing import List, Optional 
 
 import pandas as pd
@@ -21,6 +21,7 @@ router = APIRouter(prefix="/chamadas", tags=["chamadas"])
 @router.post("/upload", response_model=UploadSuccessResponse, summary="Upload de arquivo CSV") 
 async def upload_csv(
     file: UploadFile = File(...),
+    delimiter: str = Query(";", description="Delimitador usado no arquivo CSV."),
     file_service: FileService = Depends(get_file_service),
     chamada_service: ChamadaService = Depends(get_chamada_service)
 ):
@@ -30,7 +31,7 @@ async def upload_csv(
         if len(content) > settings.max_file_size:
             raise HTTPException(status_code=413, detail=f"Arquivo muito grande. Tamanho máximo: {settings.max_file_size // (1024*1024)}MB")
 
-        records = file_service.process_csv(content)
+        records = file_service.process_csv(content, delimiter)
         candidatos = file_service.convert_to_candidatos(records)
         
         chamada_service.repo.reset() 
