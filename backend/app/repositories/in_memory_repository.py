@@ -1,6 +1,5 @@
 from typing import Dict, List, Optional
 from domain.entities import Candidato, Vagas
-from domain.enums import TipoCota
 
 class InMemoryRepository:
     def __init__(self):
@@ -9,6 +8,19 @@ class InMemoryRepository:
         self.vagas_originais: Optional[Vagas] = None
         self.chamada_num: int = 1
         self.next_id = 1
+
+    def set_candidatos(self, candidatos: List[Candidato]):
+        """Substitui a lista de candidatos existente por uma nova."""
+        self.candidatos = {c.id: c for c in candidatos}
+    
+    def filter_and_set_candidatos(self, campus: str, curso: str, turno: str) -> int:
+        """Filtra os candidatos em memória e mantém apenas os que correspondem."""
+        candidatos_filtrados = {
+            id: cand for id, cand in self.candidatos.items()
+            if cand.campus == campus and cand.curso == curso and cand.turno == turno
+        }
+        self.candidatos = candidatos_filtrados
+        return len(self.candidatos)
 
     def add_candidato(self, candidato: Candidato) -> Candidato:
         candidato.id = self.next_id

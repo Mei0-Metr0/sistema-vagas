@@ -1,5 +1,7 @@
-import { Provider, useDispatch } from 'react-redux';
+import { Provider, useDispatch, useSelector } from 'react-redux';
 import { store } from './store/store';
+
+import FilterSection from './components/sections/FilterSection';
 import VacancyDistributionSection from './components/sections/VacancyDistributionSection';
 import CsvUploadSection from './components/sections/CsvUploadSection';
 import CallGenerationSection from './components/sections/CallGenerationSection';
@@ -8,11 +10,14 @@ import NonApprovedSection from './components/sections/NonApprovedSection';
 import { resetCandidates } from './store/slices/candidatesSlice';
 import { resetCall } from './store/slices/callSlice';
 import { resetVacancies } from './store/slices/vacanciesSlice';
+import { resetUi } from './store/slices/uiSlice';
 
 import './styles/main.css';
 
 function AppContent() {
   const dispatch = useDispatch();
+
+  const workflowStep = useSelector(state => state.ui.workflowStep);
 
   const handleResetSystem = async () => {
     if (window.confirm("Tem certeza que deseja resetar todo o sistema? Todos os dados carregados, distribuição de vagas e chamadas geradas serão perdidos.")) {
@@ -29,6 +34,7 @@ function AppContent() {
           dispatch(resetCandidates());
           dispatch(resetCall());
           dispatch(resetVacancies());
+          dispatch(resetUi());
 
           alert("Sistema resetado com sucesso! A página será recarregada.");
           window.location.reload();
@@ -62,10 +68,20 @@ function AppContent() {
         </div>
       </header>
 
+      {/* Passo 1: Upload - Sempre visível no início */}
       <CsvUploadSection />
-      <VacancyDistributionSection />
-      <CallGenerationSection />
-      <NonApprovedSection />
+
+      {/* Passo 2: Filtro - Visível apenas após o upload ser concluído */}
+      {workflowStep === 'upload-complete' && <FilterSection />}
+
+      {/* Passos 3 e 4: Vagas e Chamada - Visíveis apenas após o filtro ser aplicado */}
+      {workflowStep === 'filter-applied' && (
+        <>
+          <VacancyDistributionSection />
+          <CallGenerationSection />
+          <NonApprovedSection />
+        </>
+      )}
     </div>
   );
 }

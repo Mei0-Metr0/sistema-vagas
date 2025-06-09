@@ -51,7 +51,13 @@ class FileUploadResponse(BaseModel):
     size: int
     content_type: str
     records_processed: int
-
+    candidatos: List[Candidato]
+    
 class UploadSuccessResponse(BaseModel):
     status: str
     data: FileUploadResponse
+
+class FiltroPayload(BaseModel):
+    campus: str
+    curso: str
+    turno: str

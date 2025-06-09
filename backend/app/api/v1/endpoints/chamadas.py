@@ -4,12 +4,12 @@ from typing import List, Optional
 import pandas as pd
 import logging
 
-from fastapi.responses import StreamingResponse, JSONResponse
+from fastapi.responses import StreamingResponse
 from api.dependencies import get_chamada_service, get_file_service
 from services.chamada_service import ChamadaService
 from services.file_service import FileService
 from domain.entities import (
-    Vagas, ChamadaResult, Candidato, FileUploadResponse, UploadSuccessResponse, BaseModel
+    Vagas, ChamadaResult, Candidato, FileUploadResponse, UploadSuccessResponse, BaseModel, FiltroPayload
 )
 
 from core.exceptions import InvalidFileException, ValidationException, NotFoundException 
@@ -32,18 +32,22 @@ async def upload_csv(
             raise HTTPException(status_code=413, detail=f"Arquivo muito grande. Tamanho máximo: {settings.max_file_size // (1024*1024)}MB")
 
         records = file_service.process_csv(content, delimiter)
-        candidatos = file_service.convert_to_candidatos(records)
+        candidatos_obj = file_service.convert_to_candidatos(records)
         
-        chamada_service.repo.reset() 
-        total_carregados = chamada_service.carregar_candidatos(candidatos)
+        chamada_service.repo.reset()
+        total_carregados = chamada_service.carregar_candidatos(candidatos_obj)
+        
+        # Busca os candidatos recém-carregados para retornar ao frontend
+        candidatos_retorno = chamada_service.repo.list_candidatos()
 
         return {
             "status": "success",
             "data": FileUploadResponse(
                 filename=file.filename,
-                size=len(content), 
+                size=len(content),
                 content_type=file.content_type or "application/octet-stream",
-                records_processed=total_carregados
+                records_processed=total_carregados,
+                candidatos=candidatos_retorno
             )
         }
     except InvalidFileException as e:
@@ -54,6 +58,27 @@ async def upload_csv(
     except Exception as e:
         logging.exception("Erro interno não esperado no upload_csv")
         raise HTTPException(status_code=500, detail=f"Erro interno ao processar o arquivo: {str(e)}")
+
+@router.post("/filtro", summary="Aplicar filtro de Campus/Curso/Turno nos candidatos")
+async def aplicar_filtro(
+    filtro: FiltroPayload,
+    chamada_service: ChamadaService = Depends(get_chamada_service)
+):
+    try:
+        num_restantes = chamada_service.aplicar_filtro_candidatos(
+            campus=filtro.campus,
+            curso=filtro.curso,
+            turno=filtro.turno
+        )
+        return {
+            "status": "success",
+            "message": f"Filtro aplicado com sucesso. {num_restantes} candidatos selecionados para as próximas etapas."
+        }
+    except (ValidationException, NotFoundException) as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
+    except Exception as e:
+        logging.exception("Erro interno ao aplicar filtro")
+        raise HTTPException(status_code=500, detail=f"Erro interno ao aplicar filtro: {str(e)}")
 
 @router.post("/definir-vagas", summary="Definir quantidade de vagas por cota")
 async def definir_vagas(

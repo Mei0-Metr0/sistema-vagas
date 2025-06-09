@@ -1,12 +1,12 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
+  masterList: [],
   data: [],
   filteredData: [],
   sortConfig: { key: 'Nota Final', direction: 'desc' },
   filterCotaCandidato: 'todas',
   filterVagaSelecionada: 'todas',
-  // Novos estados para os filtros e suas opções
   filterCampus: 'TODOS',
   filterCurso: 'TODOS',
   filterTurno: 'TODOS',
@@ -20,6 +20,9 @@ export const candidatesSlice = createSlice({
   name: 'candidates',
   initialState,
   reducers: {
+    setMasterList: (state, action) => {
+      state.masterList = action.payload;
+    },
     setCandidates: (state, action) => {
       state.data = action.payload;
 
@@ -120,6 +123,7 @@ function applyFiltersAndSorting(data, filters) {
 }
 
 export const {
+  setMasterList,
   setCandidates,
   sortCandidates,
   filterCandidatesByCota,

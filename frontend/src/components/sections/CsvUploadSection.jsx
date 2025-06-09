@@ -4,9 +4,16 @@ import { useCsvPreview } from '../../hooks/useCsvPreview';
 import Alert from '../alerts/Alert';
 import Card from '../ui/Card';
 
+import { useDispatch } from 'react-redux';
+import { setMasterList } from '../../store/slices/candidatesSlice';
+import { setWorkflowStep } from '../../store/slices/uiSlice';
+
 import '../../styles/components/csvUploadSection.css';
 
 const CsvUploadSection = () => {
+
+    const dispatch = useDispatch();
+
     const [file, setFile] = useState(null);
     const [delimiter, setDelimiter] = useState(';');
     const { request, loading, error: apiErrorHook } = useApi();
@@ -61,12 +68,14 @@ const CsvUploadSection = () => {
                 data: formData,
                 isFormData: true
             });
-
+            
             if (responseData && responseData.status === 'success' && responseData.data) {
                 setStatus({
                     message: `Arquivo ${responseData.data.filename} carregado com sucesso! ${responseData.data.records_processed} registros processados.`,
                     type: 'success'
                 });
+                dispatch(setMasterList(responseData.data.candidatos));
+                dispatch(setWorkflowStep('upload-complete'));
             } else {
                 setStatus({
                     message: responseData?.detail || 'Resposta do servidor é inesperada.',

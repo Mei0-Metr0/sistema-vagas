@@ -381,6 +381,21 @@ class ChamadaService:
             raise ValidationException("Vagas não definidas.")
         return self._calcular_vagas_disponiveis_formatado()
 
+    def aplicar_filtro_candidatos(self, campus: str, curso: str, turno: str) -> int:
+        """
+        Filtra a lista de candidatos mestre no repositório.
+        Apenas os candidatos que correspondem aos critérios permanecerão para as próximas etapas.
+        """
+        if not self.repo.list_candidatos():
+            raise ValidationException("Nenhum candidato carregado para aplicar o filtro.")
+        
+        total_apos_filtro = self.repo.filter_and_set_candidatos(campus, curso, turno)
+        
+        if total_apos_filtro == 0:
+            raise NotFoundException(f"Nenhum candidato encontrado para o filtro: Campus='{campus}', Curso='{curso}', Turno='{turno}'. Tente um filtro diferente ou carregue outro arquivo.")
+            
+        return total_apos_filtro
+
     def reset_sistema(self) -> None:
         """Reseta todo o sistema (apenas para administração)"""
         self.repo.reset()
