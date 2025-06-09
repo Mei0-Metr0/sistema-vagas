@@ -153,7 +153,7 @@ class ChamadaService:
                 saldo_ajustado[i+1] = 0
         return saldo_ajustado
 
-    def gerar_chamada(self, fator_multiplicacao: float = 1.0) -> ChamadaResult:
+    def gerar_chamada(self, fator_multiplicacao: int = 1) -> ChamadaResult:
         """Gera uma nova chamada de seleção"""
         if not self.repo.list_candidatos():
             raise NotFoundException("Nenhum candidato carregado. Faça o upload do CSV primeiro.")
@@ -166,10 +166,8 @@ class ChamadaService:
 
         chamada_num = self.repo.get_chamada_num()
 
-        fator_aplicado = fator_multiplicacao if chamada_num > 1 else 1.0
-
         vagas_ofertadas_nesta_chamada = {
-            cota: int(getattr(vagas_base_para_calculo_oferta, cota.value, 0) * fator_aplicado)
+            cota: int(getattr(vagas_base_para_calculo_oferta, cota.value, 0) * fator_multiplicacao)
             for cota in TipoCota
         }
 

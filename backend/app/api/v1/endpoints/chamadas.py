@@ -97,11 +97,11 @@ async def definir_vagas(
 
 
 class GerarChamadaPayload(BaseModel): 
-    fator_multiplicacao: Optional[float] = 1.0
+    fator_multiplicacao: Optional[int] = 1
 
 @router.post("/gerar-chamada", response_model=ChamadaResult, summary="Gerar nova chamada")
 async def gerar_chamada(
-    payload: GerarChamadaPayload = Body(GerarChamadaPayload(fator_multiplicacao=1.0)), 
+    payload: GerarChamadaPayload = Body(GerarChamadaPayload(fator_multiplicacao=1)), 
     chamada_service: ChamadaService = Depends(get_chamada_service)
 ):
     try:
