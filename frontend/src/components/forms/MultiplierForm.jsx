@@ -20,7 +20,7 @@ const MultiplierForm = ({ onSubmit, loading, disabled = false }) => {
         className="form-range" 
         min="1" 
         max="5" 
-        step="0.1" 
+        step="1" 
         value={multiplier}
         id="fator-multiplicacao"
         onChange={handleChange}

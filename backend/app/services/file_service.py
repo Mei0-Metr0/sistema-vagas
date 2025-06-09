@@ -11,6 +11,9 @@ class FileService:
             # Ler o conteúdo do arquivo CSV
             csv_data = StringIO(file_content.decode('iso-8859-1'))
             df = pd.read_csv(csv_data, sep=';', decimal=',')
+
+            # Remove espaços em branco do início e do fim de cada nome de coluna
+            df.columns = df.columns.str.strip()
             
             # Verificar colunas obrigatórias
             required_columns = ['CPF', 'Nota Final', 'Cota do Candidato']
