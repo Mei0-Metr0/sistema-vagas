@@ -160,7 +160,7 @@ const CsvUploadSection = () => {
                 </select>
                 
                 <button className="btn-app btn-app-primary w-100" onClick={handleUpload} disabled={loading || !file}>
-                    {loading ? 'Enviando...' : 'Enviar arquivo'}
+                    {loading ? 'Enviando...' : 'Enviar Arquivo'}
                 </button>
             </div>
         </div>

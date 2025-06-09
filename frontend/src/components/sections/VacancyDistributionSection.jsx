@@ -41,7 +41,7 @@ const VacancyDistributionSection = () => {
           onClick={() => document.getElementById('confirmar-vagas').click()}
           disabled={loading}
         >
-          {loading ? 'Confirmando...' : 'Confirmar distribuição'}
+          {loading ? 'Confirmando...' : 'CONFIRMAR DISTRIBUIÇÃO'}
         </button>
       </div>
       <div className="card-body">

@@ -179,7 +179,7 @@ const NonApprovedSection = () => {
           onClick={handleMarkNonApproved}
           disabled={loading}
         >
-          {loading ? 'Processando...' : 'Marcar candidatos não homologados'}
+          {loading ? 'Processando...' : 'MARCAR CANDIDATOS NÃO HOMOLOGADOS'}
         </button>
         <button 
           id="pular-homologacao" 
@@ -187,7 +187,7 @@ const NonApprovedSection = () => {
           onClick={handleSkipApproval}
           disabled={loading}
         >
-          Não há candidatos para homologação
+          NÃO HÁ CANDITATOS PARA HOMOLOGAÇÃO
         </button>
       </div>
       

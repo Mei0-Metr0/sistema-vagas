@@ -1,6 +1,60 @@
 # Sistema de Distribuição de Vagas (Lei 14.723/2023)
 
-Este é um sistema para auxiliar na distribuição de vagas e geração de chamadas em processos seletivos universitários, com foco no cumprimento da Lei 14.723/2023 (nova Lei de Cotas). A aplicação consiste em um backend FastAPI (Python) e um frontend React (Vitte) JS.
+<div align="center" style="display: display_block">
+
+![image_info](https://img.shields.io/badge/Licença-Mozilla_Public_License_2.0-red)
+![image_info](https://img.shields.io/badge/Backend-Python-yellow)
+![image_info](https://img.shields.io/badge/Frontend-React,_Vite-blue)
+
+</div>
+
+<div align="center">
+    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg" width="100" height="100" />
+    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/fastapi/fastapi-original.svg" width="100" height="100"/>
+    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg" width="100" height="100" />
+    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vite/vite-original.svg" width="100" height="100"/>
+    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/redux/redux-original.svg" width="100" height="100"/>
+    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/bootstrap/bootstrap-original.svg" width="100" height="100"/>
+    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nodejs/nodejs-plain-wordmark.svg" width="100" height="100"/>
+    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" width="100" height="100"/>
+</div>
+
+## Autores
+
+<div align="center">
+    <table>
+    <tr>
+        <td align="center">
+        <a href="https://github.com/Mei0-Metr0">
+            <img src="https://avatars.githubusercontent.com/u/163468366?v=4" width="100px;" alt="Mei0-Metr0"/><br>
+            <sub>
+            <b>Joice Kelly Oliveira Mendes - Mei0-Metr0</b>
+            </sub>
+        </a>
+        </td>
+        <td align="center">
+        <a href="https://github.com/alerario">
+            <img src="https://avatars.githubusercontent.com/u/4432271?v=4" width="100px;" alt="LCostaF"/><br>
+            <sub>
+            <b>Alexandre L'Erario - Orientador</b>
+            </sub>
+        </a>
+        </td>
+    </tr>
+    </table>
+</div>
+
+<div align="center">
+
+**Universidade Tecnológica Federal do Paraná - UTFPR**
+
+</div>
+
+## Sobre
+
+Este é um sistema para auxiliar na distribuição de vagas e geração de chamadas em processos seletivos universitários, com foco no cumprimento da Lei 14.723/2023 (nova Lei de Cotas). 
+
+A aplicação consiste em um backend FastAPI (Python) e um frontend React (Vite) JS.
 
 ## Funcionalidades Principais
 
@@ -134,3 +188,6 @@ Após iniciar o backend e o frontend:
     * **Resetar Sistema:**
         * A qualquer momento, o botão "Resetar Sistema" no cabeçalho pode ser usado.
         * Ele pedirá confirmação e, se confirmado, limpará todos os dados do backend (candidatos, vagas, chamadas) e resetará o estado do frontend, recarregando a página.
+
+## Licença
+Este projeto está licenciado sob os termos da [Mozilla Public License 2.0](https://www.mozilla.org/MPL/2.0/).

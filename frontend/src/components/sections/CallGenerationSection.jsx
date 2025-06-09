@@ -100,7 +100,7 @@ const CallGenerationSection = () => {
             }}
             disabled={loading}
           >
-            {loading ? 'Processando...' : `Gerar ${currentCall === 0 && !status.message ? 1 : (status.type === 'success' ? currentCall +1 : currentCall +1)}ª chamada`}
+            {loading ? 'Processando...' : `GERAR ${currentCall === 0 && !status.message ? 1 : (status.type === 'success' ? currentCall +1 : currentCall +1)}ª CHAMADA`}
           </button>
         </div>
       </div>
@@ -135,7 +135,7 @@ const CallGenerationSection = () => {
           {currentCall > 0 && (
             <div className="mt-3">
               <button
-                className="btn-app btn-app-success"
+                className="btn-app btn-app-success mt-3"
                 disabled={candidates.length === 0}
                 onClick={() => {
                   if (candidates.length > 0) {

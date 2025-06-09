@@ -54,7 +54,7 @@ function AppContent() {
         <div className="header-left">
           <img src="/logo.png" alt="Logo UTFPR" className="app-logo" />
         </div>
-        <div className="title-group">
+        <div className="title-group display-flex flex-column align-items-center">
           <h1 className="titulo-principal">Sistema de Distribuição de Vagas</h1>
           <p className="subtitulo">Distribuição de vagas em cumprimento à Lei 14.723/2023</p>
         </div>
@@ -63,7 +63,7 @@ function AppContent() {
             onClick={handleResetSystem}
             className="btn btn-danger reset-button"
           >
-            Resetar Sistema
+            RESETAR SISTEMA
           </button>
         </div>
       </header>
