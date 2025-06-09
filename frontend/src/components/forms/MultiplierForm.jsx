@@ -31,7 +31,7 @@ const MultiplierForm = ({ onSubmit, loading, disabled = false }) => {
       </div>
       {disabled && (
         <div className="text-center text-muted small mt-1">
-          O fator é fixo em 1x para a 1ª chamada.
+          O FATOR É FIXO EM 1 PARA A 1ª CHAMADA.
         </div>
       )}
     </form>
