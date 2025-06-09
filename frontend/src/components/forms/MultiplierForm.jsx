@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-const MultiplierForm = ({ onSubmit, loading }) => {
+const MultiplierForm = ({ onSubmit, loading, disabled = false }) => {
   const [multiplier, setMultiplier] = useState(1.0);
 
   const handleChange = (e) => {
@@ -24,11 +24,16 @@ const MultiplierForm = ({ onSubmit, loading }) => {
         value={multiplier}
         id="fator-multiplicacao"
         onChange={handleChange}
-        disabled={loading}
+        disabled={loading || disabled}
       />
       <div className="text-center">
         <span id="fator-value">{multiplier.toFixed(1)}</span>
       </div>
+      {disabled && (
+        <div className="text-center text-muted small mt-1">
+          O fator é fixo em 1x para a 1ª chamada.
+        </div>
+      )}
     </form>
   );
 };

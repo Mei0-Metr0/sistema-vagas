@@ -166,8 +166,10 @@ class ChamadaService:
 
         chamada_num = self.repo.get_chamada_num()
 
+        fator_aplicado = fator_multiplicacao if chamada_num > 1 else 1.0
+
         vagas_ofertadas_nesta_chamada = {
-            cota: int(getattr(vagas_base_para_calculo_oferta, cota.value, 0) * fator_multiplicacao)
+            cota: int(getattr(vagas_base_para_calculo_oferta, cota.value, 0) * fator_aplicado)
             for cota in TipoCota
         }
 
@@ -203,7 +205,7 @@ class ChamadaService:
             
             # --- IMPLEMENTAÇÃO DO PASSO 10 ---
             vagas_remanescentes = vagas_para_ofertar - vagas_preenchidas_no_passo_principal
-            if vagas_remanescentes > 0:
+            if chamada_num > 1 and vagas_remanescentes > 0:
                 # Se sobraram vagas, busca candidatos em outras cotas conforme a prioridade
                 lista_de_prioridades = self.PRIORIDADE_PREENCHIMENTO.get(cota_alvo_do_passo, [])
                 

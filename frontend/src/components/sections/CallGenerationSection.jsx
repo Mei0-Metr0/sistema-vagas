@@ -83,7 +83,12 @@ const CallGenerationSection = () => {
     <Card title="3. Gerar chamada">
       <div className="row mb-3">
         <div className="col-md-6">
-          <MultiplierForm onSubmit={handleGenerateCall} loading={loading} />
+          <MultiplierForm
+            onSubmit={handleGenerateCall}
+            loading={loading}
+            // Adicione esta linha: desativa o formulário se for a 1ª chamada (currentCall é 0)
+            disabled={currentCall === 0}
+          />
         </div>
         <div className="col-md-6 d-flex align-items-end">
           <button
