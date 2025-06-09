@@ -58,18 +58,27 @@ A aplicação consiste em um backend FastAPI (Python) e um frontend React (Vite)
 
 ## Funcionalidades Principais
 
-* **Upload de Candidatos:** Carregamento de uma lista de candidatos a partir de um arquivo CSV.
-* **Definição de Vagas:** Permite definir a quantidade de vagas disponíveis para cada tipo de cota.
+* **Upload de Candidatos:** 
+    * Carregamento de uma lista de candidatos a partir de um arquivo CSV.
+    * Seleção de Delimitador: Permite escolher o separador do arquivo (ponto e vírgula, vírgula) diretamente na interface.
+    * Os nomes das colunas no CSV são processados sem distinção entre maiúsculas e minúsculas (case-insensitive) e com remoção de espaços extras em branco após e antes dos campos.
+* **Filtro de Candidatos:**
+    * Após o upload, o sistema realiza uma filtragem da lista de candidatos.
+    * O usuário deve selecionar em cascata: `Campus` -> `Curso` -> `Turno`. As opções são carregadas dinamicamente.
+    * Todo o processo subsequente (distribuição de vagas, chamadas) é realizado apenas com o conjunto de candidatos que corresponde ao filtro aplicado.
+* **Definição de Vagas:** 
+    * Permite definir a quantidade de vagas disponíveis para cada tipo de cota.
+    * Entrada Rápida: Além dos campos individuais, oferece um campo de "Colagem Rápida" onde o usuário pode colar uma linha de números que preenche todos os campos de vagas automaticamente, seguindo uma ordem pré-definida.
 * **Geração de Chamadas:**
-    * Gera chamadas de candidatos com base nas vagas definidas e na lista de candidatos carregada.
+    * Gera chamadas com base nas vagas definidas e na lista de candidatos já filtrada.
     * Aplica um fator de multiplicação opcional para convocar mais candidatos que o número de vagas.
     * Segue uma lógica de 9 passos para preenchimento de cotas, começando por Ampla Concorrência (AC) e seguindo para as demais cotas (LI\_EP, LI\_PCD, etc.).
-    * Exibe estatísticas da chamada gerada (candidatos chamados, vagas selecionadas, saldo de vagas).
-    * Permite o download da lista de candidatos da chamada gerada.
+    * Exibe estatísticas da chamada gerada e uma tabela com os candidatos convocados, que possui filtros por "Cota do Candidato" e "Vaga Selecionada" para análise.
+    * Permite o download da lista de candidatos da chamada gerada em formato CSV.
 * **Gestão de Não Homologados:**
     * Permite marcar candidatos da última chamada como "não homologados".
     * Recalcula as vagas disponíveis para a próxima chamada, considerando as vagas liberadas.
-* **Reset do Sistema:** Funcionalidade para limpar todos os dados carregados (candidatos, vagas, chamadas) e retornar o sistema ao estado inicial.
+* **Reset do Sistema:** Funcionalidade para limpar todos os dados carregados (candidatos, vagas, filtros, chamadas) e retornar o sistema ao estado inicial.
 
 ## Pré-requisitos
 
@@ -160,15 +169,25 @@ Após iniciar o backend e o frontend:
     * **Página Inicial:** Você verá o título "Sistema de Distribuição de Vagas" com a logo (se adicionada) e um botão "Resetar Sistema".
     * **Etapa 1: Upload do CSV de Candidatos**
         * Clique na área designada ou arraste e solte um arquivo CSV contendo os dados dos candidatos.
-        * Colunas esperadas no CSV: `CPF`, `Nota Final`, `Cota do candidato`. Opcionalmente: `Nome`, `Email`.
+        * Colunas esperadas no CSV: `CPF`, `Nota Final`, `Cota do candidato`. Opcionalmente: `Nome`, `Email`. Os nomes das colunas não diferenciam maiúsculas de minúsculas.
+        * Antes de enviar, selecione o separador correto do seu arquivo (ex: `;` ou `,`) no menu ao lado do campo de upload.
         * Após selecionar, uma pré-visualização será exibida.
-        * Clique em "Enviar arquivo". Uma mensagem de sucesso com o número de registros processados será exibida.
-    * **Etapa 2: Informar a Distribuição das Cotas**
+        * Clique em "Enviar arquivo". Uma mensagem de sucesso com o número de registros processados será exibida. Após o sucesso, a próxima etapa será exibida.
+    * **Etapa 2: Filtrar Candidatos**
+        * Esta etapa é obrigatória e aparecerá após o upload.
+        * Selecione em ordem:
+            1. O Campus.
+            2. O Curso (as opções serão carregadas com base no campus escolhido).
+            3. O Turno (as opções serão carregadas com base no curso escolhido).
+        * Clique em "Aplicar Filtro e Continuar". O sistema agora trabalhará exclusivamente com os candidatos que correspondem a essa seleção.
+    * **Etapa 3: Informar a Distribuição das Cotas**
         * Preencha a quantidade de vagas para cada uma das 9 categorias de cota (AC, LI\_EP, etc.).
+            - Opção A (Colagem Rápida): Cole uma string de 9 números separados por espaço no campo "Colagem Rápida". Os campos individuais serão preenchidos automaticamente na seguinte ordem: AC, LI_EP, LI_PCD, LI_Q, LI_PPI, LB_EP, LB_PCD, LB_Q, LB_PPI.
+            - Opção B (Manual): Preencha a quantidade de vagas para cada uma das 9 categorias de cota individualmente.
         * O total de vagas será calculado automaticamente.
         * Clique em "Confirmar distribuição".
     * **Etapa 3: Gerar Chamada**
-        * Ajuste o "Fator de multiplicação" se desejar convocar mais candidatos do que o número de vagas disponíveis (ex: 1.0 para chamar exatamente o número de vagas, 1.2 para chamar 20% a mais).
+        * Ajuste o "Fator de multiplicação" (número inteiro: 1, 2, 3...) se desejar convocar mais candidatos do que o número de vagas. (ex: 1.0 para chamar exatamente o número de vagas, 1.2 para chamar 20% a mais).
         * Clique no botão "Gerar Xª chamada".
         * A aplicação exibirá:
             * **Estatísticas da chamada:**
