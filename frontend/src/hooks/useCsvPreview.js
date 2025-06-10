@@ -12,7 +12,7 @@ export const useCsvPreview = () => {
 
         Papa.parse(file, {
             header: true,
-            preview: 10,
+            preview: 5,
             delimiter: delimiter,
             encoding: 'ISO-8859-1',
             complete: (results) => {

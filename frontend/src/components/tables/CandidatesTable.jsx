@@ -2,7 +2,9 @@ import { useSelector, useDispatch } from 'react-redux';
 import {
   sortCandidates,
   filterCandidatesByCota,
-  filterCandidatesByVagaSelecionada
+  filterCandidatesByVagaSelecionada,
+  addNonApprovedCpf,
+  removeNonApprovedCpf
 } from '../../store/slices/candidatesSlice';
 
 import SortableTableHeader from './SortableTableHeader';
@@ -13,7 +15,8 @@ const CandidatesTable = () => {
     filteredData,
     sortConfig,
     filterCotaCandidato,
-    filterVagaSelecionada
+    filterVagaSelecionada,
+    nonApprovedCpfs
   } = useSelector(state => state.candidates);
 
   const dispatch = useDispatch();
@@ -28,6 +31,14 @@ const CandidatesTable = () => {
     dispatch(sortCandidates({ key, direction }));
   };
 
+  const handleCheckboxChange = (cpf, isChecked) => {
+    if (isChecked) {
+      dispatch(addNonApprovedCpf(cpf));
+    } else {
+      dispatch(removeNonApprovedCpf(cpf));
+    }
+  };
+
   const handleFilterCotaChange = (e) => {
     dispatch(filterCandidatesByCota(e.target.value));
   };
@@ -36,7 +47,8 @@ const CandidatesTable = () => {
     dispatch(filterCandidatesByVagaSelecionada(e.target.value));
   };
 
-  const headers = filteredData.length > 0 ? Object.keys(filteredData[0]) : [];
+  const baseHeaders = filteredData.length > 0 ? Object.keys(filteredData[0]) : [];
+  const headers = ['Não Homologado', ...baseHeaders];
 
   return (
     <div className="candidatos-container mt-4">
@@ -101,19 +113,33 @@ const CandidatesTable = () => {
           <thead>
             <tr>
               {headers.map(header => (
-                <SortableTableHeader
-                  key={header}
-                  column={header}
-                  sortConfig={sortConfig}
-                  onSort={handleSort}
-                />
+                // <-- A COLUNA DO CHECKBOX NÃO SERÁ ORDENÁVEL -->
+                header === 'Não Homologado' ? (
+                  <th key={header}>{header}</th>
+                ) : (
+                  <SortableTableHeader
+                    key={header}
+                    column={header}
+                    sortConfig={sortConfig}
+                    onSort={handleSort}
+                  />
+                )
               ))}
             </tr>
           </thead>
           <tbody>
             {filteredData.map((candidate, index) => (
               <tr key={candidate.ID || index}>
-                {headers.map(header => (
+                {/* <-- ADICIONAR A CÉLULA DO CHECKBOX --> */}
+                <td>
+                  <input
+                    type="checkbox"
+                    className="form-check-input"
+                    checked={nonApprovedCpfs.includes(candidate.CPF)}
+                    onChange={(e) => handleCheckboxChange(candidate.CPF, e.target.checked)}
+                  />
+                </td>
+                {baseHeaders.map(header => (
                   <td key={`${candidate.ID || index}-${header}`}>{candidate[header]}</td>
                 ))}
               </tr>

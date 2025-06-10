@@ -5,7 +5,6 @@ import FilterSection from './components/sections/FilterSection';
 import VacancyDistributionSection from './components/sections/VacancyDistributionSection';
 import CsvUploadSection from './components/sections/CsvUploadSection';
 import CallGenerationSection from './components/sections/CallGenerationSection';
-import NonApprovedSection from './components/sections/NonApprovedSection';
 
 import { resetCandidates } from './store/slices/candidatesSlice';
 import { resetCall } from './store/slices/callSlice';
@@ -79,7 +78,6 @@ function AppContent() {
         <>
           <VacancyDistributionSection />
           <CallGenerationSection />
-          <NonApprovedSection />
         </>
       )}
     </div>
