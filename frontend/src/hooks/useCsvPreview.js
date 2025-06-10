@@ -17,8 +17,8 @@ export const useCsvPreview = () => {
             encoding: 'ISO-8859-1',
             complete: (results) => {
                 if (results.data.length === 0 || !results.meta.fields || results.meta.fields.length <= 1) {
-                     setPreview({ headers: ['Erro'], rows: [{'Erro': 'Não foi possível ler o arquivo. Verifique o delimitador e o formato do CSV.'}] });
-                     return;
+                    setPreview({ headers: ['Erro'], rows: [{ 'Erro': 'Não foi possível ler o arquivo. Verifique o delimitador e o formato do CSV.' }] });
+                    return;
                 }
 
                 const cleanedHeaders = results.meta.fields.map(h => h.trim());

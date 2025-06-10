@@ -2,7 +2,7 @@
   /* Cores Primárias e de Acento */
   --color-primary: #007bff;
   --color-primary-dark: #0069d9;
-  --color-primary-light-bg: #e9ecef; /* Usado para .dragging bg, .tag bg */
+  --color-primary-light-bg: #e9ecef;
 
   /* Cores de Feedback (Alertas) */
   --color-success-bg: #d4edda;
@@ -59,7 +59,7 @@
   --font-family-sans-serif: 'Poppins', sans-serif;
 
   /* Botões */
-  --color-primary-rgb: 0,123,255;
-  --color-secondary-rgb: 108,117,125;
-  --color-success-rgb: 21,87,36;
+  --color-primary-rgb: 0, 123, 255;
+  --color-secondary-rgb: 108, 117, 125;
+  --color-success-rgb: 21, 87, 36;
 }

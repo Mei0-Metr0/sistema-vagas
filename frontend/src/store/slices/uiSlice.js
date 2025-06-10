@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  workflowStep: 'initial', 
+  workflowStep: 'initial',
 };
 
 export const uiSlice = createSlice({

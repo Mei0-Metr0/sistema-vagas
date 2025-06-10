@@ -29,10 +29,10 @@ export const api = {
 
     if (!response.ok) {
       const errorMessage = responseData && responseData.detail
-                           ? responseData.detail
-                           : (responseData && responseData.message
-                             ? responseData.message
-                             : `Request failed with status ${response.status}. No specific error message provided.`);
+        ? responseData.detail
+        : (responseData && responseData.message
+          ? responseData.message
+          : `Request failed with status ${response.status}. No specific error message provided.`);
       throw new Error(errorMessage);
     }
 

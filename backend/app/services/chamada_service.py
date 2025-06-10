@@ -203,7 +203,7 @@ class ChamadaService:
             
             # --- IMPLEMENTAÇÃO DO PASSO 10 ---
             vagas_remanescentes = vagas_para_ofertar - vagas_preenchidas_no_passo_principal
-            if chamada_num > 1 and vagas_remanescentes > 0:
+            if vagas_remanescentes > 0:
                 # Se sobraram vagas, busca candidatos em outras cotas conforme a prioridade
                 lista_de_prioridades = self.PRIORIDADE_PREENCHIMENTO.get(cota_alvo_do_passo, [])
                 
@@ -267,7 +267,7 @@ class ChamadaService:
         return ChamadaResult(
             candidatos_chamados=candidatos_chamados_nesta_rodada,
             vagas_selecionadas=vagas_selecionadas_dict,
-            saldo_remanescente_proxima_chamada=novo_saldo_repo.model_dump(), # Usar model_dump() para Pydantic v2+
+            saldo_remanescente_proxima_chamada=novo_saldo_repo.model_dump(),
             tamanho_lista=tamanho_lista_dict,
             chamada_num=chamada_num,
             saldo_candidatos_chamada_atual=saldo_candidatos_chamada_atual_dict,
@@ -393,6 +393,19 @@ class ChamadaService:
             raise NotFoundException(f"Nenhum candidato encontrado para o filtro: Campus='{campus}', Curso='{curso}', Turno='{turno}'. Tente um filtro diferente ou carregue outro arquivo.")
             
         return total_apos_filtro
+    
+    def gerar_relatorio_chamada_completo(self, chamada_num: int) -> List[Candidato]:
+        """
+        Lista TODOS os candidatos de uma chamada específica, incluindo
+        SELECIONADOS e NAO_HOMOLOGADOS, para gerar um relatório completo.
+        """
+        candidatos_relatorio = [
+            c for c in self.repo.list_candidatos()
+            if c.chamada == chamada_num
+        ]
+        if not candidatos_relatorio and chamada_num > 0:
+            pass
+        return self._ordenar_por_nota(candidatos_relatorio)
 
     def reset_sistema(self) -> None:
         """Reseta todo o sistema (apenas para administração)"""

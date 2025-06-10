@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import '../../styles/components/alerts.css'; 
+import '../../styles/components/alerts.css';
 
 const Alert = ({ message, type = 'info', duration = 5000 }) => {
   const [visible, setVisible] = useState(true);

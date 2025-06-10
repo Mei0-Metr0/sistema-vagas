@@ -36,7 +36,7 @@
   background-color: var(--color-primary-dark);
   border-color: var(--color-primary-dark);
   color: var(--color-white);
-  box-shadow: var(--shadow-btn-primary-hover), 0 0 0 0.2rem rgba(var(--color-primary-rgb, 0,123,255), 0.5);
+  box-shadow: var(--shadow-btn-primary-hover), 0 0 0 0.2rem rgba(var(--color-primary-rgb, 0, 123, 255), 0.5);
 }
 
 .btn-app-primary:disabled,
@@ -71,7 +71,7 @@
   background-color: #5a6268;
   border-color: #545b62;
   color: var(--color-white);
-  box-shadow: var(--shadow-btn-primary-hover), 0 0 0 0.2rem rgba(var(--color-secondary-rgb,108,117,125), 0.5);
+  box-shadow: var(--shadow-btn-primary-hover), 0 0 0 0.2rem rgba(var(--color-secondary-rgb, 108, 117, 125), 0.5);
 }
 
 .btn-app-secondary:disabled,
@@ -106,7 +106,7 @@
   background-color: #1e7e34;
   border-color: #1c7430;
   color: var(--color-white);
-  box-shadow: var(--shadow-btn-primary-hover), 0 0 0 0.2rem rgba(var(--color-success-rgb,21,87,36), 0.5);
+  box-shadow: var(--shadow-btn-primary-hover), 0 0 0 0.2rem rgba(var(--color-success-rgb, 21, 87, 36), 0.5);
 }
 
 .btn-app-success:disabled,

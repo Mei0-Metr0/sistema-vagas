@@ -3,12 +3,12 @@ import { useApi } from '../../hooks/useApi';
 import Alert from '../alerts/Alert';
 
 const COTA_ORDER = [
-  'AC', 'LI_EP', 'LI_PCD', 'LI_Q', 'LI_PPI', 
+  'AC', 'LI_EP', 'LI_PCD', 'LI_Q', 'LI_PPI',
   'LB_EP', 'LB_PCD', 'LB_Q', 'LB_PPI'
 ];
 
 const CotaDistributionForm = ({ onConfirm, status, loading }) => {
-  
+
   const [cotas, setCotas] = useState({
     AC: 22,
     LI_EP: 6,
@@ -32,16 +32,15 @@ const CotaDistributionForm = ({ onConfirm, status, loading }) => {
       ...prev,
       [id]: value
     }));
-    setPastedString(''); 
+    setPastedString('');
   };
 
-  // Manipula campo de texto
   const handlePastedStringChange = (e) => {
     const inputString = e.target.value;
     setPastedString(inputString);
 
     const numbers = inputString.trim().split(/\s+/);
-    
+
     const newCotas = { ...cotas };
 
     COTA_ORDER.forEach((cotaKey, index) => {
@@ -55,10 +54,9 @@ const CotaDistributionForm = ({ onConfirm, status, loading }) => {
   };
 
   const handleConfirm = async () => {
-    // Converte todos os valores para números
     const numericCotas = Object.entries(cotas).reduce((acc, [key, value]) => {
-        acc[key] = parseInt(value, 10) || 0;
-        return acc;
+      acc[key] = parseInt(value, 10) || 0;
+      return acc;
     }, {});
     await onConfirm(numericCotas);
   };

@@ -8,7 +8,7 @@ export const useApi = () => {
   const request = async (endpoint, method = 'GET', data = null) => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const response = await api.request(endpoint, method, data);
       return response;

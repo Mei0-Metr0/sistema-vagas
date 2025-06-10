@@ -9,7 +9,7 @@ const SortableTableHeader = ({ column, sortConfig, onSort }) => {
   };
 
   return (
-    <th 
+    <th
       onClick={handleClick}
       className={sortConfig.key === column ? `sort-${sortConfig.direction}` : ''}
     >

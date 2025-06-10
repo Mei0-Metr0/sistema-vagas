@@ -37,13 +37,11 @@
   padding: 0.3rem;
 }
 
-/* Garante que a coluna de controles use toda a altura disponível */
 .controls-column {
   display: flex;
   flex-direction: column;
 }
 
-/* Empurra o botão para a base da coluna */
 .controls-column .btn-app {
-  margin:auto;
+  margin: auto;
 }

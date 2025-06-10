@@ -54,6 +54,7 @@
 .vacancy-distribution-section input[type="number"] {
   -moz-appearance: textfield;
 }
+
 .vacancy-distribution-section input[type="number"]::-webkit-outer-spin-button,
 .vacancy-distribution-section input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
@@ -78,18 +79,19 @@
   margin-left: 0.2rem;
 }
 
-.vacancy-distribution-section .row > [class*="col-"] .mb-3 {
-    margin-bottom: 0.75rem !important; /* Reduz o mb-3 padrão do Bootstrap */
+.vacancy-distribution-section .row>[class*="col-"] .mb-3 {
+  margin-bottom: 0.75rem !important;
 }
 
-.vacancy-distribution-section .row > [class*="col-"] {
-    margin-bottom: 0.75rem;
-}
-.vacancy-distribution-section .row > [class*="col-"]:last-child {
-    margin-bottom: 0;
+.vacancy-distribution-section .row>[class*="col-"] {
+  margin-bottom: 0.75rem;
 }
 
-.vacancy-distribution-section .card-body > .row:last-of-type > [class*="col-"] {
+.vacancy-distribution-section .row>[class*="col-"]:last-child {
+  margin-bottom: 0;
+}
+
+.vacancy-distribution-section .card-body>.row:last-of-type>[class*="col-"] {
   margin-bottom: 0;
 }
 
@@ -99,22 +101,26 @@
     flex-direction: column;
     align-items: flex-start;
   }
+
   .vacancy-distribution-section.card .card-header h2 {
     margin-bottom: 0.5rem;
   }
+
   .vacancy-distribution-section.card .card-header .btn-primary {
     width: 100%;
     margin-top: 0.5rem;
   }
 
-  .vacancy-distribution-section .row > [class*="col-"] {
+  .vacancy-distribution-section .row>[class*="col-"] {
     margin-bottom: 0.75rem;
   }
+
   /* Garante que mesmo o último filho em uma linha tenha margem se não for a última linha de inputs */
-   .vacancy-distribution-section .card-body > .row:not(:last-of-type) > [class*="col-"]:last-child {
+  .vacancy-distribution-section .card-body>.row:not(:last-of-type)>[class*="col-"]:last-child {
     margin-bottom: 0.75rem;
   }
-   .vacancy-distribution-section .card-body > .row:last-of-type > [class*="col-"]:last-child {
+
+  .vacancy-distribution-section .card-body>.row:last-of-type>[class*="col-"]:last-child {
     margin-bottom: 0;
   }
 

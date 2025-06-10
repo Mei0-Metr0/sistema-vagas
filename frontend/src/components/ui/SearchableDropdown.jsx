@@ -6,7 +6,6 @@ const SearchableDropdown = ({ options, value, onChange, placeholder = "Selecione
   const [searchTerm, setSearchTerm] = useState('');
   const dropdownRef = useRef(null);
 
-  // Fecha o dropdown se clicar fora dele
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {

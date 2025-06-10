@@ -12,18 +12,18 @@ const FilterSection = () => {
   const [status, setStatus] = useState({ message: '', type: '' });
 
   const masterList = useSelector(state => state.candidates.masterList);
-  
+
   const [selectedCampus, setSelectedCampus] = useState('');
   const [selectedCurso, setSelectedCurso] = useState('');
   const [selectedTurno, setSelectedTurno] = useState('');
 
   const filterOptions = useMemo(() => {
     const campi = [...new Set(masterList.map(c => c.campus))].sort();
-    
-    const cursos = selectedCampus 
+
+    const cursos = selectedCampus
       ? [...new Set(masterList.filter(c => c.campus === selectedCampus).map(c => c.curso))].sort()
       : [];
-      
+
     const turnos = selectedCurso
       ? [...new Set(masterList.filter(c => c.campus === selectedCampus && c.curso === selectedCurso).map(c => c.turno))].sort()
       : [];
@@ -45,22 +45,22 @@ const FilterSection = () => {
   const handleApplyFilter = async () => {
     setStatus({ message: '', type: '' });
     try {
-        const response = await request({
-            endpoint: '/chamadas/filtro',
-            method: 'POST',
-            data: {
-                campus: selectedCampus,
-                curso: selectedCurso,
-                turno: selectedTurno,
-            }
-        });
-
-        if (response.status === 'success') {
-            setStatus({ message: response.message, type: 'success' });
-            dispatch(setWorkflowStep('filter-applied'));
+      const response = await request({
+        endpoint: '/chamadas/filtro',
+        method: 'POST',
+        data: {
+          campus: selectedCampus,
+          curso: selectedCurso,
+          turno: selectedTurno,
         }
+      });
+
+      if (response.status === 'success') {
+        setStatus({ message: response.message, type: 'success' });
+        dispatch(setWorkflowStep('filter-applied'));
+      }
     } catch (err) {
-        setStatus({ message: err.message, type: 'error' });
+      setStatus({ message: err.message, type: 'error' });
     }
   };
 

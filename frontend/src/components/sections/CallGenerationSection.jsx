@@ -8,6 +8,7 @@ import MultiplierForm from '../forms/MultiplierForm';
 import VacanciesTable from '../tables/VacanciesTable';
 import { setCallData } from '../../store/slices/callSlice';
 import { setCandidates, clearNonApprovedCpfs } from '../../store/slices/candidatesSlice';
+import InfoLegend from '../ui/InfoLegend';
 
 const CallGenerationSection = () => {
   const { request, loading, error: apiErrorHook } = useApi();
@@ -22,13 +23,12 @@ const CallGenerationSection = () => {
   const { data: candidates, nonApprovedCpfs } = useSelector(state => state.candidates);
   const dispatch = useDispatch();
 
-  // Função que limpa os status para uma nova geração de chamada
   const resetCallGenerationState = () => {
     setStatus({ message: '', type: '' });
     setHomologationStatus({ message: '', type: '' });
     setShowAvailableVacancies(false);
     setAvailableVacancies([]);
-    dispatch(setCandidates([])); // Limpa a tabela de candidatos anterior
+    dispatch(setCandidates([]));
   }
 
   const handleGenerateCall = async (multiplier) => {
@@ -96,7 +96,6 @@ const CallGenerationSection = () => {
     }
   };
 
-  // <-- FUNÇÃO MOVIDA DE NonApprovedSection -->
   const handleMarkNonApproved = async () => {
     if (nonApprovedCpfs.length === 0) {
       setHomologationStatus({ message: 'Selecione pelo menos um CPF na tabela acima.', type: 'warning' });
@@ -120,21 +119,22 @@ const CallGenerationSection = () => {
         setNextCallNumber(data.proxima_chamada);
         setShowAvailableVacancies(true);
         dispatch(clearNonApprovedCpfs());
-        dispatch(setCandidates([])); // Limpa a tabela para não confundir
+        dispatch(setCandidates([]));
+
+        setStatus({ message: '', type: '' });
       }
     } catch (err) {
       setHomologationStatus({ message: err.message || 'Erro ao marcar candidatos', type: 'error' });
     }
   };
 
-  // <-- FUNÇÃO MOVIDA DE NonApprovedSection -->
   const handleSkipApproval = async () => {
     setHomologationStatus({ message: '', type: '' });
     try {
       const data = await request({
         endpoint: '/chamadas/marcar-nao-homologados',
         method: 'POST',
-        data: [], // Envia uma lista vazia
+        data: [],
       });
 
       if (data.status === 'success') {
@@ -145,12 +145,16 @@ const CallGenerationSection = () => {
         setAvailableVacancies(data.vagas_disponiveis);
         setNextCallNumber(data.proxima_chamada);
         setShowAvailableVacancies(true);
-        dispatch(setCandidates([])); // Limpa a tabela para não confundir
+        dispatch(setCandidates([]));
+
+        setStatus({ message: '', type: '' });
       }
     } catch (err) {
       setHomologationStatus({ message: err.message || 'Erro ao processar', type: 'error' });
     }
   };
+
+  const shouldShowResultsSection = status.type === 'success' && !apiErrorHook;
 
   return (
     <Card title="3. GERAR CHAMADA E HOMOLOGAÇÃO">
@@ -159,7 +163,7 @@ const CallGenerationSection = () => {
           <MultiplierForm
             onSubmit={handleGenerateCall}
             loading={loading}
-            disabled={currentCall !== 0 && candidates.length > 0} // Desativa se já tem uma chamada para homologar
+            disabled={currentCall !== 0 && candidates.length > 0}
           />
         </div>
         <div className="col-md-6 d-flex align-items-end">
@@ -180,10 +184,14 @@ const CallGenerationSection = () => {
       {apiErrorHook && <Alert message={apiErrorHook} type="error" />}
       {!apiErrorHook && status.message && <Alert message={status.message} type={status.type} />}
 
-      {/* Seção de Estatísticas e Tabela de Candidatos */}
-      {candidates.length > 0 && (
+      {shouldShowResultsSection && (
         <div className="mt-4">
           <h4 className="mb-2 me-3 border-bottom pb-4">RESULTADOS DA {currentCall}ª CHAMADA</h4>
+
+          {candidates.length === 0 && (
+            <Alert message="Nenhum candidato foi selecionado nesta chamada." type="info" />
+          )}
+
           <div className="row mt-4">
             <div className="col-md-6">
               <h5>Saldo de vagas por cota</h5>
@@ -196,43 +204,42 @@ const CallGenerationSection = () => {
           </div>
 
           <CandidatesTable />
+          <InfoLegend />
 
-          {/* =================================================================== */}
-          {/* NOVA SEÇÃO DE BOTÕES DE AÇÃO PÓS-CHAMADA                   */}
-          {/* =================================================================== */}
-          <div className="mt-4 d-flex justify-content-between align-items-center flex-wrap gap-3 border-top pt-4">
-            <div className="d-flex gap-3">
+          {candidates.length > 0 && (
+            <div className="mt-4 d-flex justify-content-between align-items-center flex-wrap gap-3 border-top pt-4">
+              <div className="d-flex gap-3">
+                <button
+                  className="btn-app btn-app-primary"
+                  onClick={handleMarkNonApproved}
+                  disabled={loading || nonApprovedCpfs.length === 0}
+                  title={nonApprovedCpfs.length === 0 ? "Selecione ao menos um candidato na tabela para marcar" : ""}
+                >
+                  {loading ? 'Processando...' : `MARCAR ${nonApprovedCpfs.length} NÃO HOMOLOGADO(S)`}
+                </button>
+                <button
+                  className="btn-app btn-app-secondary"
+                  onClick={handleSkipApproval}
+                  disabled={loading}
+                >
+                  TODOS FORAM HOMOLOGADOS
+                </button>
+              </div>
+
               <button
-                className="btn-app btn-app-primary"
-                onClick={handleMarkNonApproved}
-                disabled={loading || nonApprovedCpfs.length === 0}
-                title={nonApprovedCpfs.length === 0 ? "Selecione ao menos um candidato na tabela para marcar" : ""}
+                className="btn-app btn-app-success"
+                onClick={() => {
+                  const url = `${import.meta.env.VITE_API_BASE_URL || '/api/v1'}/chamadas/exportar/${currentCall}`;
+                  window.location.href = url;
+                }}
               >
-                {loading ? 'Processando...' : `MARCAR ${nonApprovedCpfs.length} NÃO HOMOLOGADO(S)`}
-              </button>
-              <button
-                className="btn-app btn-app-secondary"
-                onClick={handleSkipApproval}
-                disabled={loading}
-              >
-                TODOS FORAM HOMOLOGADOS
+                DOWNLOAD DA LISTA DE CHAMADOS
               </button>
             </div>
-
-            <button
-              className="btn-app btn-app-success"
-              onClick={() => {
-                const url = `${import.meta.env.VITE_API_BASE_URL || '/api/v1'}/chamadas/exportar/${currentCall}`;
-                window.location.href = url;
-              }}
-            >
-              DOWNLOAD DA {currentCall}ª CHAMADA
-            </button>
-          </div>
+          )}
         </div>
       )}
 
-      {/* Alertas e Tabela de Vagas Disponíveis para a Próxima Chamada */}
       {homologationStatus.message && <Alert message={homologationStatus.message} type={homologationStatus.type} />}
 
       {showAvailableVacancies && (
@@ -243,8 +250,20 @@ const CallGenerationSection = () => {
             headers={['Cota', 'Vagas Ofertadas (Última Chamada)', 'Vagas Disponíveis (Próxima Chamada)']}
             contents={['Cota', 'Vagas Originais', 'Vagas Disponíveis']}
           />
-          <div className="alert alert-info mt-4">
-            Tudo pronto! Clique em "GERAR {nextCallNumber}ª CHAMADA" acima para continuar.
+
+          <div className="d-flex justify-content-between align-items-center mt-4 flex-wrap gap-2">
+            <div className="alert alert-info mb-0">
+              Tudo pronto! Clique em "GERAR {nextCallNumber}ª CHAMADA" acima para continuar.
+            </div>
+            <button
+              className="btn-app btn-app-success"
+              onClick={() => {
+                const url = `${import.meta.env.VITE_API_BASE_URL || '/api/v1'}/chamadas/relatorio-completo/${currentCall}`;
+                window.location.href = url;
+              }}
+            >
+              DOWNLOAD DO RESULTADO FINAL DA {currentCall}ª CHAMADA
+            </button>
           </div>
         </div>
       )}

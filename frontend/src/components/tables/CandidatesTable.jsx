@@ -47,74 +47,69 @@ const CandidatesTable = () => {
     dispatch(filterCandidatesByVagaSelecionada(e.target.value));
   };
 
-  const baseHeaders = filteredData.length > 0 ? Object.keys(filteredData[0]) : [];
-  const headers = ['Não Homologado', ...baseHeaders];
+  let headers = [];
+  if (filteredData.length > 0) {
+    const baseHeaders = Object.keys(filteredData[0]);
+    headers = ['NH', ...baseHeaders];
+  }
 
   return (
     <div className="candidatos-container mt-4">
-      {/* ======================= INÍCIO DA ALTERAÇÃO DE LAYOUT ======================= */}
-      {/* Usamos Flexbox para alinhar o título à esquerda e os filtros à direita */}
       <div className="d-flex justify-content-between align-items-center mb-3">
-        {/* Título à esquerda */}
         <h5 className="mb-0">CANDIDATOS CHAMADOS</h5>
+        {filteredData.length > 0 && (
+          <div className="d-flex align-items-center gap-3">
+            <div className="d-flex align-items-center">
+              <label htmlFor="filter-cota" className="form-label me-2 small mb-0 text-nowrap">COTA DO CANDIDATO:</label>
+              <select
+                id="filter-cota"
+                className="form-select form-select-sm"
+                value={filterCotaCandidato}
+                onChange={handleFilterCotaChange}
+              >
+                <option value="todas">Todas</option>
+                <option value="AC">AC</option>
+                <option value="LI_EP">LI_EP</option>
+                <option value="LI_PCD">LI_PCD</option>
+                <option value="LI_Q">LI_Q</option>
+                <option value="LI_PPI">LI_PPI</option>
+                <option value="LB_EP">LB_EP</option>
+                <option value="LB_PCD">LB_PCD</option>
+                <option value="LB_Q">LB_Q</option>
+                <option value="LB_PPI">LB_PPI</option>
+              </select>
+            </div>
 
-        {/* Container para os filtros à direita */}
-        <div className="d-flex align-items-center gap-3">
-          <div className="d-flex align-items-center">
-            <label htmlFor="filter-cota" className="form-label me-2 small mb-0 text-nowrap">COTA DO CANDIDATO:</label>
-            <select
-              id="filter-cota"
-              className="form-select form-select-sm"
-              value={filterCotaCandidato}
-              onChange={handleFilterCotaChange}
-            >
-              <option value="todas">Todas</option>
-              <option value="AC">AC</option>
-              <option value="LI_EP">LI_EP</option>
-              <option value="LI_PCD">LI_PCD</option>
-              <option value="LI_Q">LI_Q</option>
-              <option value="LI_PPI">LI_PPI</option>
-              <option value="LB_EP">LB_EP</option>
-              <option value="LB_PCD">LB_PCD</option>
-              <option value="LB_Q">LB_Q</option>
-              <option value="LB_PPI">LB_PPI</option>
-            </select>
+            <div className="d-flex align-items-center">
+              <label htmlFor="filter-vaga" className="form-label me-2 small mb-0 text-nowrap">VAGA SELECIONADA:</label>
+              <select
+                id="filter-vaga"
+                className="form-select form-select-sm"
+                value={filterVagaSelecionada}
+                onChange={handleFilterVagaSelecionadaChange}
+              >
+                <option value="todas">Todas</option>
+                <option value="AC">AC</option>
+                <option value="LI_EP">LI_EP</option>
+                <option value="LI_PCD">LI_PCD</option>
+                <option value="LI_Q">LI_Q</option>
+                <option value="LI_PPI">LI_PPI</option>
+                <option value="LB_EP">LB_EP</option>
+                <option value="LB_PCD">LB_PCD</option>
+                <option value="LB_Q">LB_Q</option>
+                <option value="LB_PPI">LB_PPI</option>
+              </select>
+            </div>
           </div>
-
-          {/* 2. Repetido o mesmo padrão para o segundo filtro */}
-          <div className="d-flex align-items-center">
-            <label htmlFor="filter-vaga" className="form-label me-2 small mb-0 text-nowrap">VAGA SELECIONADA:</label>
-            <select
-              id="filter-vaga"
-              className="form-select form-select-sm"
-              value={filterVagaSelecionada}
-              onChange={handleFilterVagaSelecionadaChange}
-            >
-              <option value="todas">Todas</option>
-              <option value="AC">AC</option>
-              <option value="LI_EP">LI_EP</option>
-              <option value="LI_PCD">LI_PCD</option>
-              <option value="LI_Q">LI_Q</option>
-              <option value="LI_PPI">LI_PPI</option>
-              <option value="LB_EP">LB_EP</option>
-              <option value="LB_PCD">LB_PCD</option>
-              <option value="LB_Q">LB_Q</option>
-              <option value="LB_PPI">LB_PPI</option>
-            </select>
-          </div>
-        </div>
+        )}
       </div>
-      {/* ======================== FIM DA ALTERAÇÃO DE LAYOUT ========================= */}
-
-      {/* REMOVIDAS: As linhas antigas de filtros */}
 
       <div className="table-responsive">
         <table className="table table-bordered table-sortable">
           <thead>
             <tr>
               {headers.map(header => (
-                // <-- A COLUNA DO CHECKBOX NÃO SERÁ ORDENÁVEL -->
-                header === 'Não Homologado' ? (
+                header === 'NH' ? (
                   <th key={header}>{header}</th>
                 ) : (
                   <SortableTableHeader
@@ -130,7 +125,6 @@ const CandidatesTable = () => {
           <tbody>
             {filteredData.map((candidate, index) => (
               <tr key={candidate.ID || index}>
-                {/* <-- ADICIONAR A CÉLULA DO CHECKBOX --> */}
                 <td>
                   <input
                     type="checkbox"
@@ -139,7 +133,7 @@ const CandidatesTable = () => {
                     onChange={(e) => handleCheckboxChange(candidate.CPF, e.target.checked)}
                   />
                 </td>
-                {baseHeaders.map(header => (
+                {Object.keys(candidate).map(header => (
                   <td key={`${candidate.ID || index}-${header}`}>{candidate[header]}</td>
                 ))}
               </tr>

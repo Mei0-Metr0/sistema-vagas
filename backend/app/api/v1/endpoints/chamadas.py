@@ -226,6 +226,52 @@ async def vagas_disponiveis_endpoint(
         status_code = e.status_code if hasattr(e, 'status_code') else 500
         raise HTTPException(status_code=status_code, detail=detail_msg)
 
+@router.get("/relatorio-completo/{chamada_num}", summary="Exportar relatório completo da chamada (com não homologados)")
+async def exportar_relatorio_completo(
+    chamada_num: int,
+    chamada_service: ChamadaService = Depends(get_chamada_service)
+):
+    try:
+        candidatos = chamada_service.gerar_relatorio_chamada_completo(chamada_num)
+        if not candidatos:
+            logging.warning(f"Tentativa de exportar relatório da chamada {chamada_num} sem candidatos.")
+            raise NotFoundException(detail=f"Nenhum candidato encontrado para o relatório da chamada {chamada_num}.")
+            
+        colunas_ordenadas = [
+            "id", "campus", "curso", "turno", "cpf", "nome", "email", "nota_final", 
+            "cota", "vaga_selecionada", "status", "chamada"
+        ]
+        
+        candidatos_dict_list = []
+        for c in candidatos:
+            cand_dict = c.dict(exclude_none=True)
+            for col in colunas_ordenadas:
+                if col not in cand_dict:
+                    cand_dict[col] = None
+            candidatos_dict_list.append(cand_dict)
+
+        df = pd.DataFrame(candidatos_dict_list, columns=colunas_ordenadas)
+        
+        stream = io.StringIO()
+        df.to_csv(stream, index=False, sep=';', decimal=',')
+        
+        response = StreamingResponse(
+            iter([stream.getvalue()]),
+            media_type="text/csv",
+            headers={
+                "Content-Disposition": f"attachment; filename=relatorio_final_chamada_{chamada_num}.csv"
+            }
+        )
+        return response
+    except NotFoundException as e:
+        logging.warning(f"Exportação do relatório falhou para chamada {chamada_num}: {e.detail}")
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
+    except Exception as e:
+        logging.exception(f"Erro interno não esperado ao exportar relatório da chamada {chamada_num}")
+        detail_msg = e.detail if hasattr(e, 'detail') else str(e)
+        status_code = e.status_code if hasattr(e, 'status_code') else 500
+        raise HTTPException(status_code=status_code, detail=detail_msg)
+
 @router.post("/reset-sistema", summary="Resetar todo o sistema para o estado inicial")
 async def reset_sistema_endpoint(
     chamada_service: ChamadaService = Depends(get_chamada_service)

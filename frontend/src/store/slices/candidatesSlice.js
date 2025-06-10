@@ -20,7 +20,6 @@ export const candidatesSlice = createSlice({
     setCandidates: (state, action) => {
       state.data = action.payload;
 
-      // Aplica os filtros (agora incluindo os novos)
       state.filteredData = applyFiltersAndSorting(
         action.payload,
         state
@@ -53,10 +52,10 @@ export const candidatesSlice = createSlice({
 
 function applyFiltersAndSorting(data, filters) {
   let filtered = [...data];
-  const { 
-    filterCotaCandidato, 
+  const {
+    filterCotaCandidato,
     filterVagaSelecionada,
-    sortConfig 
+    sortConfig
   } = filters;
 
   // Aplicar filtros
