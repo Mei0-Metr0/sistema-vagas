@@ -6,27 +6,23 @@ from io import StringIO
 
 class FileService:
     @staticmethod
-    def process_csv(file_content: bytes, delimiter: str) -> List[Dict[str, Any]]:
+    def process_csv(file_content: bytes, delimiter: str, encoding: str) -> List[Dict[str, Any]]:
         try:
-            # Ler o conteúdo do arquivo CSV
-            csv_data = StringIO(file_content.decode('iso-8859-1'))
+            csv_data = StringIO(file_content.decode(encoding))
             df = pd.read_csv(csv_data, sep=delimiter, decimal=',')
 
-            # Remove espaços em branco do início e do fim de cada nome de coluna
             df.columns = df.columns.str.strip()
-
-            # Padroniza todas as colunas para letras minúsculas
             df.columns = df.columns.str.lower()
             
-            # Verificar colunas obrigatórias
             required_columns = ['cpf', 'nota final', 'cota do candidato']
 
             if not all(col in df.columns for col in required_columns):
                 missing = [col for col in required_columns if col not in df.columns]
                 raise InvalidFileException(f"Colunas obrigatórias faltando: {', '.join(missing)}")
             
-            # Converter para lista de dicionários
             return df.to_dict('records')
+        except UnicodeDecodeError:
+            raise InvalidFileException(f"Não foi possível decodificar o arquivo com o encoding '{encoding}'. Por favor, selecione o encoding correto.")
         except Exception as e:
             raise InvalidFileException(f"Erro ao processar arquivo: {str(e)}")
 

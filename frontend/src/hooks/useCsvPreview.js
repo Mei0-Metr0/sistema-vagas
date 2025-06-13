@@ -4,8 +4,8 @@ import Papa from 'papaparse';
 export const useCsvPreview = () => {
     const [preview, setPreview] = useState(null);
 
-    const generatePreview = (file, delimiter) => {
-        if (!file || !delimiter) {
+    const generatePreview = (file, delimiter, encoding) => {
+        if (!file || !delimiter || !encoding) {
             setPreview(null);
             return;
         }
@@ -14,10 +14,10 @@ export const useCsvPreview = () => {
             header: true,
             preview: 5,
             delimiter: delimiter,
-            encoding: 'ISO-8859-1',
+            encoding: encoding, 
             complete: (results) => {
                 if (results.data.length === 0 || !results.meta.fields || results.meta.fields.length <= 1) {
-                    setPreview({ headers: ['Erro'], rows: [{ 'Erro': 'Não foi possível ler o arquivo. Verifique o delimitador e o formato do CSV.' }] });
+                    setPreview({ headers: ['Erro'], rows: [{ 'Erro': 'Não foi possível ler o arquivo. Verifique o delimitador, o encoding e o formato do CSV.' }] });
                     return;
                 }
 

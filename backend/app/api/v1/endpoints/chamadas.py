@@ -18,10 +18,11 @@ import io
 
 router = APIRouter(prefix="/chamadas", tags=["chamadas"])
 
-@router.post("/upload", response_model=UploadSuccessResponse, summary="Upload de arquivo CSV") 
+@router.post("/upload", response_model=UploadSuccessResponse, summary="Upload de arquivo CSV")
 async def upload_csv(
     file: UploadFile = File(...),
     delimiter: str = Query(";", description="Delimitador usado no arquivo CSV."),
+    encoding: str = Query("iso-8859-1", description="Encoding do arquivo CSV. (ex: utf-8, iso-8859-1)"),
     file_service: FileService = Depends(get_file_service),
     chamada_service: ChamadaService = Depends(get_chamada_service)
 ):
@@ -31,13 +32,12 @@ async def upload_csv(
         if len(content) > settings.max_file_size:
             raise HTTPException(status_code=413, detail=f"Arquivo muito grande. Tamanho máximo: {settings.max_file_size // (1024*1024)}MB")
 
-        records = file_service.process_csv(content, delimiter)
+        records = file_service.process_csv(content, delimiter, encoding)
         candidatos_obj = file_service.convert_to_candidatos(records)
         
         chamada_service.repo.reset()
         total_carregados = chamada_service.carregar_candidatos(candidatos_obj)
         
-        # Busca os candidatos recém-carregados para retornar ao frontend
         candidatos_retorno = chamada_service.repo.list_candidatos()
 
         return {

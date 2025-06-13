@@ -11,11 +11,11 @@ import { setWorkflowStep } from '../../store/slices/uiSlice';
 import '../../styles/components/csvUploadSection.css';
 
 const CsvUploadSection = () => {
-
     const dispatch = useDispatch();
 
     const [file, setFile] = useState(null);
     const [delimiter, setDelimiter] = useState(';');
+    const [encoding, setEncoding] = useState('iso-8859-1');
     const { request, loading, error: apiErrorHook } = useApi();
     const { preview, generatePreview } = useCsvPreview();
     const [status, setStatus] = useState({ message: '', type: '' });
@@ -39,11 +39,11 @@ const CsvUploadSection = () => {
 
     useEffect(() => {
         if (file) {
-            generatePreview(file, delimiter);
+            generatePreview(file, delimiter, encoding);
         } else {
-            generatePreview(null, null);
+            generatePreview(null, null, null);
         }
-    }, [file, delimiter, generatePreview]);
+    }, [file, delimiter, encoding, generatePreview]);
 
     const handleFileChange = (e) => {
         const selectedFile = e.target.files[0];
@@ -60,15 +60,14 @@ const CsvUploadSection = () => {
         formData.append('file', file);
 
         try {
-            const endpointWithDelimiter = `/chamadas/upload?delimiter=${encodeURIComponent(delimiter)}`;
+            const endpointWithParams = `/chamadas/upload?delimiter=${encodeURIComponent(delimiter)}&encoding=${encodeURIComponent(encoding)}`;
 
             const responseData = await request({
-                endpoint: endpointWithDelimiter,
+                endpoint: endpointWithParams,
                 method: 'POST',
                 data: formData,
                 isFormData: true
             });
-
             if (responseData && responseData.status === 'success' && responseData.data) {
                 setStatus({
                     message: `Arquivo ${responseData.data.filename} carregado com sucesso! ${responseData.data.records_processed} registros processados.`,
@@ -115,9 +114,14 @@ const CsvUploadSection = () => {
     return (
         <Card title="1. UPLOAD DO CSV">
             <div className="row">
-                <div className="col-md-9">
+                <div className="col-md-6">
                     <label htmlFor="csv-file" className="form-label fw-bold">
                         Arquivo CSV
+                    </label>
+                </div>
+                <div className="col-md-3">
+                    <label htmlFor="encoding-select" className="form-label fw-bold">
+                        Encoding
                     </label>
                 </div>
                 <div className="col-md-3">
@@ -128,8 +132,7 @@ const CsvUploadSection = () => {
             </div>
 
             <div className="row">
-                {/* Coluna da Esquerda: Área de Upload */}
-                <div className="col-md-9">
+                <div className="col-md-6">
                     <div className="position-relative h-100">
                         <div
                             className="csv-drop-zone d-flex flex-column justify-content-center"
@@ -151,21 +154,43 @@ const CsvUploadSection = () => {
                     </div>
                 </div>
 
-                {/* Coluna da Direita: Controles (Seletor e Botão) */}
-                <div className="col-md-3 controls-column">
-                    <select id="delimiter-select" className="form-select" value={delimiter} onChange={(e) => setDelimiter(e.target.value)} disabled={loading}>
-                        <option value=";">Ponto e vírgula (;)</option>
-                        <option value=",">Vírgula (,)</option>
-                        <option value="\t">Tab (invisível)</option>
-                    </select>
+                <div className="col-md-6">
+                    <div className="d-flex flex-column h-100">
+                        <select
+                            id="encoding-select"
+                            className="form-select mb-3"
+                            value={encoding}
+                            onChange={(e) => setEncoding(e.target.value)}
+                            disabled={loading}
+                        >
+                            <option value="iso-8859-1">ISO-8859-1 (Latin-1)</option>
+                            <option value="utf-8">UTF-8</option>
+                            <option value="windows-1252">Windows-1252</option>
+                        </select>
 
-                    <button className="btn-app btn-app-primary w-100" onClick={handleUpload} disabled={loading || !file}>
-                        {loading ? 'Enviando...' : 'Enviar Arquivo'}
-                    </button>
+                        <select
+                            id="delimiter-select"
+                            className="form-select mb-3"
+                            value={delimiter}
+                            onChange={(e) => setDelimiter(e.target.value)}
+                            disabled={loading}
+                        >
+                            <option value=";">Ponto e vírgula (;)</option>
+                            <option value=",">Vírgula (,)</option>
+                            <option value="\t">Tab (invisível)</option>
+                        </select>
+
+                        <button
+                            className="btn-app btn-app-primary w-100 mt-auto"
+                            onClick={handleUpload}
+                            disabled={loading || !file}
+                        >
+                            {loading ? 'Enviando...' : 'Enviar Arquivo'}
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            {/* CONTAINER DA PRÉ-VISUALIZAÇÃO */}
             <div className="preview-container mt-4">
                 {apiErrorHook && <Alert message={apiErrorHook} type="error" />}
                 {!apiErrorHook && status.message && <Alert message={status.message} type={status.type} />}
