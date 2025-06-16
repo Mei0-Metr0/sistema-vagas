@@ -1,11 +1,17 @@
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 from domain.entities import Candidato, Vagas
 
 class InMemoryRepository:
     def __init__(self):
         self.candidatos: Dict[int, Candidato] = {}
-        self.vagas: Vagas = Vagas()
-        self.vagas_originais: Optional[Vagas] = None
+        # Vagas agora é um dicionário para armazenar vagas por curso
+        # A chave é uma tupla (campus, curso, turno)
+        self.vagas_por_curso: Dict[Tuple[str, str, str], Vagas] = {}
+        self.vagas_originais_por_curso: Dict[Tuple[str, str, str], Vagas] = {}
+        
+        # Contexto de visualização atual do usuário
+        self.view_context: Optional[Dict[str, str]] = None
+        
         self.chamada_num: int = 1
         self.next_id = 1
 
@@ -13,14 +19,13 @@ class InMemoryRepository:
         """Substitui a lista de candidatos existente por uma nova."""
         self.candidatos = {c.id: c for c in candidatos}
     
-    def filter_and_set_candidatos(self, campus: str, curso: str, turno: str) -> int:
-        """Filtra os candidatos em memória e mantém apenas os que correspondem."""
-        candidatos_filtrados = {
-            id: cand for id, cand in self.candidatos.items()
-            if cand.campus == campus and cand.curso == curso and cand.turno == turno
-        }
-        self.candidatos = candidatos_filtrados
-        return len(self.candidatos)
+    def set_view_context(self, campus: str, curso: str, turno: str):
+        """Define o contexto de visualização atual (campus, curso, turno)"""
+        self.view_context = {"campus": campus, "curso": curso, "turno": turno}
+
+    def get_view_context(self) -> Optional[Dict[str, str]]:
+        """Retorna o contexto de visualização atual"""
+        return self.view_context
 
     def add_candidato(self, candidato: Candidato) -> Candidato:
         candidato.id = self.next_id
@@ -31,11 +36,9 @@ class InMemoryRepository:
     def get_candidato(self, candidato_id: int) -> Optional[Candidato]:
         return self.candidatos.get(candidato_id)
 
-    def get_candidato_by_cpf(self, cpf: str) -> Optional[Candidato]:
-        for cand in self.candidatos.values():
-            if cand.cpf == cpf:
-                return cand
-        return None
+    def get_candidatos_by_cpf(self, cpf: str) -> List[Candidato]:
+        """Retorna uma lista de todas as inscrições de um candidato pelo CPF."""
+        return [cand for cand in self.candidatos.values() if cand.cpf == cpf]
 
     def list_candidatos(self) -> List[Candidato]:
         return list(self.candidatos.values())
@@ -43,7 +46,10 @@ class InMemoryRepository:
     def update_candidato(self, candidato_id: int, candidato_update: dict) -> Optional[Candidato]:
         if candidato_id not in self.candidatos:
             return None
-        self.candidatos[candidato_id] = Candidato(**{**self.candidatos[candidato_id].dict(), **candidato_update})
+        # Pydantic V2 usa model_copy para criar uma cópia mutável e model_dump para serializar
+        current_data = self.candidatos[candidato_id].model_dump()
+        current_data.update(candidato_update)
+        self.candidatos[candidato_id] = Candidato(**current_data)
         return self.candidatos[candidato_id]
 
     def delete_candidato(self, candidato_id: int) -> bool:
@@ -52,21 +58,22 @@ class InMemoryRepository:
             return True
         return False
 
-    def set_vagas(self, vagas: Vagas) -> None:
-        self.vagas = vagas
-        self.vagas_originais = vagas.copy()
+    def set_vagas_para_curso(self, curso_key: Tuple[str, str, str], vagas: Vagas):
+        """Define as vagas para um curso específico."""
+        self.vagas_por_curso[curso_key] = vagas
+        if curso_key not in self.vagas_originais_por_curso:
+             self.vagas_originais_por_curso[curso_key] = vagas.model_copy()
 
-    def get_vagas(self) -> Vagas:
-        return self.vagas
+    def get_vagas_para_curso(self, curso_key: Tuple[str, str, str]) -> Optional[Vagas]:
+        """Obtém as vagas para um curso específico."""
+        return self.vagas_por_curso.get(curso_key)
 
-    def get_vagas_originais(self) -> Optional[Vagas]:
-        return self.vagas_originais
-    
-    def set_vagas_ofertadas_na_ultima_chamada_gerada(self, vagas_ofertadas: Vagas):
-        self.vagas_ofertadas_na_ultima_chamada_gerada = vagas_ofertadas.copy()
-
-    def get_vagas_ofertadas_na_ultima_chamada_gerada(self) -> Optional[Vagas]:
-        return self.vagas_ofertadas_na_ultima_chamada_gerada
+    def get_vagas_originais_para_curso(self, curso_key: Tuple[str, str, str]) -> Optional[Vagas]:
+        """Obtém as vagas originais para um curso específico."""
+        return self.vagas_originais_por_curso.get(curso_key)
+        
+    def list_cursos_com_vagas_definidas(self) -> List[Tuple[str, str, str]]:
+        return list(self.vagas_por_curso.keys())
 
     def increment_chamada_num(self) -> int:
         self.chamada_num += 1
@@ -77,7 +84,8 @@ class InMemoryRepository:
 
     def reset(self) -> None:
         self.candidatos = {}
-        self.vagas = Vagas()
-        self.vagas_originais = None
+        self.vagas_por_curso = {}
+        self.vagas_originais_por_curso = {}
+        self.view_context = None
         self.chamada_num = 1
         self.next_id = 1

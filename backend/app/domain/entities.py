@@ -9,11 +9,11 @@ class CandidatoBase(BaseModel):
     campus: Optional[str] = None
     curso: Optional[str] = None
     turno: Optional[str] = None
-    
 
 class CandidatoCreate(CandidatoBase):
     nota_final: float
     cota: TipoCota
+    opcao: int
 
 class Candidato(CandidatoBase):
     id: Optional[int] = None
@@ -22,7 +22,8 @@ class Candidato(CandidatoBase):
     vaga_selecionada: Optional[TipoCota] = None
     status: StatusCandidato = StatusCandidato.PENDENTE
     chamada: Optional[int] = None
-    
+    opcao: int
+
     class Config:
         from_attributes = True
 
@@ -52,7 +53,7 @@ class FileUploadResponse(BaseModel):
     content_type: str
     records_processed: int
     candidatos: List[Candidato]
-    
+
 class UploadSuccessResponse(BaseModel):
     status: str
     data: FileUploadResponse
