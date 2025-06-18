@@ -72,6 +72,7 @@ const CallGenerationSection = () => {
           'Cota do candidato': cand.cota,
           'Vaga Selecionada': cand.vaga_selecionada,
           'Status': cand.status,
+          'Opção': cand.opcao,
           'Chamada': cand.chamada
         }));
 

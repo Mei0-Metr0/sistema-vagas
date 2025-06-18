@@ -174,9 +174,14 @@ async def exportar_chamada(
             logging.warning(f"Tentativa de exportar chamada {chamada_num} sem candidatos ou chamada inexistente.")
             raise NotFoundException(detail=f"Nenhum candidato encontrado para a chamada {chamada_num} para exportação.")
             
+        # colunas_ordenadas = [
+        #     "id", "campus", "curso", "turno", "cpf", "nome", "email", "nota_final", 
+        #     "cota", "vaga_selecionada", "status", "chamada"
+        # ]
+
         colunas_ordenadas = [
-            "id", "campus", "curso", "turno", "cpf", "nome", "email", "nota_final", 
-            "cota", "vaga_selecionada", "status", "chamada"
+            "id", "campus", "curso", "turno", "nome", "nota_final", 
+            "cota", "vaga_selecionada", "status", "opcao", "chamada"
         ]
         
         candidatos_dict_list = []
@@ -237,9 +242,14 @@ async def exportar_relatorio_completo(
             logging.warning(f"Tentativa de exportar relatório da chamada {chamada_num} sem candidatos.")
             raise NotFoundException(detail=f"Nenhum candidato encontrado para o relatório da chamada {chamada_num}.")
             
+        #colunas_ordenadas = [
+        #    "id", "campus", "curso", "turno", "cpf", "nome", "email", "nota_final", 
+        #    "cota", "vaga_selecionada", "status", "chamada"
+        #]
+
         colunas_ordenadas = [
-            "id", "campus", "curso", "turno", "cpf", "nome", "email", "nota_final", 
-            "cota", "vaga_selecionada", "status", "chamada"
+            "id", "campus", "curso", "turno", "nome", "nota_final", 
+            "cota", "vaga_selecionada", "status", "opcao", "chamada"
         ]
         
         candidatos_dict_list = []
