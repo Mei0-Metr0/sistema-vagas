@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, Body, Query
-from typing import List, Optional 
+from typing import List, Optional
 
 import pandas as pd
 import logging
@@ -12,11 +12,20 @@ from domain.entities import (
     Vagas, ChamadaResult, Candidato, FileUploadResponse, UploadSuccessResponse, BaseModel, FiltroPayload
 )
 
-from core.exceptions import InvalidFileException, ValidationException, NotFoundException 
-from core.config import settings 
+from core.exceptions import InvalidFileException, ValidationException, NotFoundException
+from core.config import settings
 import io
 
 router = APIRouter(prefix="/chamadas", tags=["chamadas"])
+
+def format_ordinal(n, gender='m'):
+    """Formata um número como ordinal em português (ex: 1, 'f' -> '1ª')."""
+    if not isinstance(n, (int, float)) or pd.isna(n):
+        return ''
+    num = int(n)
+    if gender.lower() == 'f':
+        return f"{num}ª"
+    return f"{num}º"
 
 @router.post("/upload", response_model=UploadSuccessResponse, summary="Upload de arquivo CSV")
 async def upload_csv(
@@ -53,7 +62,7 @@ async def upload_csv(
     except InvalidFileException as e:
         logging.exception(f"Erro de arquivo inválido durante o upload: {e.detail}")
         raise HTTPException(status_code=e.status_code, detail=e.detail)
-    except HTTPException: 
+    except HTTPException:
         raise
     except Exception as e:
         logging.exception("Erro interno não esperado no upload_csv")
@@ -82,12 +91,12 @@ async def aplicar_filtro(
 
 @router.post("/definir-vagas", summary="Definir quantidade de vagas por cota")
 async def definir_vagas(
-    vagas: Vagas, 
+    vagas: Vagas,
     chamada_service: ChamadaService = Depends(get_chamada_service)
 ):
     try:
-        chamada_service.definir_vagas(vagas) 
-        chamada_service.repo.chamada_num = 1 
+        chamada_service.definir_vagas(vagas)
+        chamada_service.repo.chamada_num = 1
         return {"status": "success", "message": "Distribuição de vagas definida com sucesso.", "total_vagas": sum(vagas.dict().values())}
     except Exception as e:
         logging.exception("Erro ao definir vagas")
@@ -96,12 +105,12 @@ async def definir_vagas(
         raise HTTPException(status_code=status_code, detail=detail_msg)
 
 
-class GerarChamadaPayload(BaseModel): 
+class GerarChamadaPayload(BaseModel):
     fator_multiplicacao: Optional[int] = 1
 
 @router.post("/gerar-chamada", response_model=ChamadaResult, summary="Gerar nova chamada")
 async def gerar_chamada(
-    payload: GerarChamadaPayload = Body(GerarChamadaPayload(fator_multiplicacao=1)), 
+    payload: GerarChamadaPayload = Body(GerarChamadaPayload(fator_multiplicacao=1)),
     chamada_service: ChamadaService = Depends(get_chamada_service)
 ):
     try:
@@ -121,7 +130,7 @@ async def gerar_chamada(
 
 @router.post("/marcar-nao-homologados", summary="Marcar candidatos não homologados e preparar para próxima chamada")
 async def marcar_nao_homologados(
-    cpfs: List[str] = Body(...), 
+    cpfs: List[str] = Body(...),
     chamada_service: ChamadaService = Depends(get_chamada_service)
 ):
     try:
@@ -154,7 +163,7 @@ async def listar_chamada(
     try:
         candidatos = chamada_service.listar_candidatos_chamada(chamada_num)
         return candidatos
-    except NotFoundException as e: 
+    except NotFoundException as e:
         logging.exception(f"Chamada {chamada_num} não encontrada ao listar: {e.detail}")
         raise HTTPException(status_code=e.status_code, detail=e.detail)
     except Exception as e:
@@ -163,6 +172,7 @@ async def listar_chamada(
         status_code = e.status_code if hasattr(e, 'status_code') else 500
         raise HTTPException(status_code=status_code, detail=detail_msg)
 
+
 @router.get("/exportar/{chamada_num}", summary="Exportar chamada para CSV")
 async def exportar_chamada(
     chamada_num: int,
@@ -170,30 +180,27 @@ async def exportar_chamada(
 ):
     try:
         candidatos = chamada_service.listar_candidatos_chamada(chamada_num)
-        if not candidatos: 
+        if not candidatos:
             logging.warning(f"Tentativa de exportar chamada {chamada_num} sem candidatos ou chamada inexistente.")
             raise NotFoundException(detail=f"Nenhum candidato encontrado para a chamada {chamada_num} para exportação.")
             
-        # colunas_ordenadas = [
-        #     "id", "campus", "curso", "turno", "cpf", "nome", "email", "nota_final", 
-        #     "cota", "vaga_selecionada", "status", "chamada"
-        # ]
-
         colunas_ordenadas = [
-            "id", "campus", "curso", "turno", "nome", "nota_final", 
-            "cota", "vaga_selecionada", "status", "opcao", "chamada"
+            "id", "campus", "curso", "turno", "nome", "nota_final",
+            "cota", "vaga_selecionada", "status", "opcao", "chamada",
+            "class_AC", "class_LI_EP", "class_LI_PCD", "class_LI_Q", "class_LI_PPI",
+            "class_LB_EP", "class_LB_PCD", "class_LB_Q", "class_LB_PPI"
         ]
         
-        candidatos_dict_list = []
-        for c in candidatos:
-            cand_dict = c.dict(exclude_none=True) 
-            for col in colunas_ordenadas:
-                if col not in cand_dict:
-                    cand_dict[col] = None 
-            candidatos_dict_list.append(cand_dict)
+        candidatos_dict_list = [c.dict(exclude_none=True) for c in candidatos]
+        df = pd.DataFrame(candidatos_dict_list)
+        df = df.reindex(columns=colunas_ordenadas)
 
-        df = pd.DataFrame(candidatos_dict_list, columns=colunas_ordenadas)
-        
+        df['chamada'] = df['chamada'].apply(lambda x: f"{int(x)}ª chamada" if pd.notna(x) else "")
+        df['opcao'] = df['opcao'].apply(lambda x: f"{int(x)}ª opção" if pd.notna(x) else "")
+        for col in [c for c in colunas_ordenadas if c.startswith('class_')]:
+            if col in df:
+                df[col] = df[col].apply(lambda x: format_ordinal(x, 'm'))
+
         stream = io.StringIO()
         df.to_csv(stream, index=False, sep=';', decimal=',')
         
@@ -208,16 +215,12 @@ async def exportar_chamada(
     except NotFoundException as e:
         logging.warning(f"Exportação falhou para chamada {chamada_num}: {e.detail}")
         raise HTTPException(status_code=e.status_code, detail=e.detail)
-    except HTTPException: 
-        raise
     except Exception as e:
         logging.exception(f"Erro interno não esperado ao exportar chamada {chamada_num}")
-        detail_msg = e.detail if hasattr(e, 'detail') else str(e)
-        status_code = e.status_code if hasattr(e, 'status_code') else 500
-        raise HTTPException(status_code=status_code, detail=detail_msg)
+        raise HTTPException(status_code=500, detail="Erro interno ao gerar o relatório.")
 
 @router.get("/vagas-disponiveis", summary="Obter vagas disponíveis por cota para a próxima chamada")
-async def vagas_disponiveis_endpoint( 
+async def vagas_disponiveis_endpoint(
     chamada_service: ChamadaService = Depends(get_chamada_service)
 ):
     try:
@@ -242,26 +245,23 @@ async def exportar_relatorio_completo(
             logging.warning(f"Tentativa de exportar relatório da chamada {chamada_num} sem candidatos.")
             raise NotFoundException(detail=f"Nenhum candidato encontrado para o relatório da chamada {chamada_num}.")
             
-        #colunas_ordenadas = [
-        #    "id", "campus", "curso", "turno", "cpf", "nome", "email", "nota_final", 
-        #    "cota", "vaga_selecionada", "status", "chamada"
-        #]
-
         colunas_ordenadas = [
-            "id", "campus", "curso", "turno", "nome", "nota_final", 
-            "cota", "vaga_selecionada", "status", "opcao", "chamada"
+            "id", "campus", "curso", "turno", "nome", "nota_final",
+            "cota", "vaga_selecionada", "status", "opcao", "chamada",
+            "class_AC", "class_LI_EP", "class_LI_PCD", "class_LI_Q", "class_LI_PPI",
+            "class_LB_EP", "class_LB_PCD", "class_LB_Q", "class_LB_PPI"
         ]
         
-        candidatos_dict_list = []
-        for c in candidatos:
-            cand_dict = c.dict(exclude_none=True)
-            for col in colunas_ordenadas:
-                if col not in cand_dict:
-                    cand_dict[col] = None
-            candidatos_dict_list.append(cand_dict)
+        candidatos_dict_list = [c.dict(exclude_none=True) for c in candidatos]
+        df = pd.DataFrame(candidatos_dict_list)
+        df = df.reindex(columns=colunas_ordenadas)
 
-        df = pd.DataFrame(candidatos_dict_list, columns=colunas_ordenadas)
-        
+        df['chamada'] = df['chamada'].apply(lambda x: f"{int(x)}ª chamada" if pd.notna(x) else "")
+        df['opcao'] = df['opcao'].apply(lambda x: f"{int(x)}ª opção" if pd.notna(x) else "")
+        for col in [c for c in colunas_ordenadas if c.startswith('class_')]:
+            if col in df:
+                df[col] = df[col].apply(lambda x: format_ordinal(x, 'm'))
+
         stream = io.StringIO()
         df.to_csv(stream, index=False, sep=';', decimal=',')
         
@@ -278,9 +278,55 @@ async def exportar_relatorio_completo(
         raise HTTPException(status_code=e.status_code, detail=e.detail)
     except Exception as e:
         logging.exception(f"Erro interno não esperado ao exportar relatório da chamada {chamada_num}")
-        detail_msg = e.detail if hasattr(e, 'detail') else str(e)
-        status_code = e.status_code if hasattr(e, 'status_code') else 500
-        raise HTTPException(status_code=status_code, detail=detail_msg)
+        raise HTTPException(status_code=500, detail="Erro interno ao gerar o relatório.")
+
+
+@router.get("/relatorio-geral-curso", summary="Exportar relatório geral de todos os candidatos do curso filtrado")
+async def exportar_relatorio_geral_curso(
+    chamada_service: ChamadaService = Depends(get_chamada_service)
+):
+    try:
+        candidatos = chamada_service.gerar_relatorio_geral_por_curso()
+        
+        context = chamada_service.repo.get_view_context()
+        curso_nome = context.get('curso', 'curso').replace(' ', '_')
+        turno_nome = context.get('turno', 'turno').replace(' ', '_')
+        filename = f"relatorio_geral_{curso_nome}_{turno_nome}.csv"
+
+        colunas_ordenadas = [
+            "id", "campus", "curso", "turno", "nome", "nota_final",
+            "cota", "vaga_selecionada", "status", "opcao", "chamada",
+            "class_AC", "class_LI_EP", "class_LI_PCD", "class_LI_Q", "class_LI_PPI",
+            "class_LB_EP", "class_LB_PCD", "class_LB_Q", "class_LB_PPI"
+        ]
+        
+        candidatos_dict_list = [c.dict(exclude_none=True) for c in candidatos]
+        df = pd.DataFrame(candidatos_dict_list)
+        df = df.reindex(columns=colunas_ordenadas)
+
+        df['chamada'] = df['chamada'].apply(lambda x: f"{int(x)}ª chamada" if pd.notna(x) else "")
+        df['opcao'] = df['opcao'].apply(lambda x: f"{int(x)}ª opção" if pd.notna(x) else "")
+        for col in [c for c in colunas_ordenadas if c.startswith('class_')]:
+            if col in df:
+                df[col] = df[col].apply(lambda x: format_ordinal(x, 'm'))
+        
+        stream = io.StringIO()
+        df.to_csv(stream, index=False, sep=';', decimal=',')
+        
+        response = StreamingResponse(
+            iter([stream.getvalue()]),
+            media_type="text/csv",
+            headers={
+                "Content-Disposition": f"attachment; filename={filename}"
+            }
+        )
+        return response
+    except (NotFoundException, ValidationException) as e:
+        logging.warning(f"Exportação do relatório geral falhou: {e.detail}")
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
+    except Exception as e:
+        logging.exception(f"Erro interno não esperado ao exportar relatório geral do curso")
+        raise HTTPException(status_code=500, detail="Erro interno ao gerar o relatório.")
 
 @router.post("/reset-sistema", summary="Resetar todo o sistema para o estado inicial")
 async def reset_sistema_endpoint(

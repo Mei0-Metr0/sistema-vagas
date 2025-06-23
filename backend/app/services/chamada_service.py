@@ -63,11 +63,18 @@ class ChamadaService:
     def _ordenar_por_nota(self, candidatos: List[Candidato]) -> List[Candidato]:
         return sorted(candidatos, key=lambda c: c.nota_final, reverse=True)
 
-    def _filtrar_candidatos_para_passo(self, candidatos_do_curso: List[Candidato], passo: int, cpfs_ja_selecionados: set) -> List[Candidato]:
-        candidatos_elegiveis = [
-            c for c in candidatos_do_curso
-            if c.status == StatusCandidato.PENDENTE and c.cpf not in cpfs_ja_selecionados
-        ]
+    def _filtrar_candidatos_para_passo(self, candidatos_do_curso: List[Candidato], passo: int, cpfs_ja_selecionados: set, ignore_status: bool = False) -> List[Candidato]:
+        if ignore_status:
+            candidatos_elegiveis = [
+                c for c in candidatos_do_curso
+                if c.cpf not in cpfs_ja_selecionados
+            ]
+        else:
+            candidatos_elegiveis = [
+                c for c in candidatos_do_curso
+                if c.status == StatusCandidato.PENDENTE and c.cpf not in cpfs_ja_selecionados
+            ]
+
         if passo == 1: return candidatos_elegiveis
         elif passo == 2: return [c for c in candidatos_elegiveis if c.cota != TipoCota.AC]
         elif passo == 3: return [c for c in candidatos_elegiveis if c.cota in [TipoCota.LI_PCD, TipoCota.LB_PCD]]
@@ -90,7 +97,6 @@ class ChamadaService:
         return vagas_preenchidas
 
     def _ajustar_saldo_vagas(self, saldo_vagas: List[int]) -> List[int]:
-        """Ajusta saldo de vagas redistribuindo déficits."""
         saldo_ajustado = saldo_vagas.copy()
         for i in range(len(saldo_ajustado)-2, -1, -1):
             if saldo_ajustado[i+1] < 0:
@@ -98,21 +104,45 @@ class ChamadaService:
                 saldo_ajustado[i+1] = 0
         return saldo_ajustado
 
+    def _calcular_classificacao_por_cota(self, candidatos_do_curso: List[Candidato]) -> Dict[str, Dict[str, int]]:
+        classificacoes: Dict[str, Dict[str, int]] = defaultdict(dict)
+
+        ELIGIBILITY_FOR_RANKING = {
+            TipoCota.AC: [TipoCota.AC, TipoCota.LI_EP, TipoCota.LI_PCD, TipoCota.LI_Q, TipoCota.LI_PPI, TipoCota.LB_EP, TipoCota.LB_PCD, TipoCota.LB_Q, TipoCota.LB_PPI],
+            TipoCota.LI_EP: [TipoCota.LI_EP, TipoCota.LI_PCD, TipoCota.LI_Q, TipoCota.LI_PPI, TipoCota.LB_EP, TipoCota.LB_PCD, TipoCota.LB_Q, TipoCota.LB_PPI],
+            TipoCota.LI_PCD: [TipoCota.LI_PCD, TipoCota.LB_PCD],
+            TipoCota.LI_Q: [TipoCota.LI_Q, TipoCota.LB_Q],
+            TipoCota.LI_PPI: [TipoCota.LI_PPI, TipoCota.LB_PPI],
+            TipoCota.LB_EP: [TipoCota.LB_EP, TipoCota.LB_PCD, TipoCota.LB_Q, TipoCota.LB_PPI],
+            TipoCota.LB_PCD: [TipoCota.LB_PCD],
+            TipoCota.LB_Q: [TipoCota.LB_Q],
+            TipoCota.LB_PPI: [TipoCota.LB_PPI],
+        }
+
+        for target_cota, eligible_source_cotas in ELIGIBILITY_FOR_RANKING.items():
+            candidatos_para_ranking = sorted([c for c in candidatos_do_curso if c.cota in eligible_source_cotas], key=lambda c: c.nota_final, reverse=True)
+            class_key = f"class_{target_cota.value}"
+            for i, cand in enumerate(candidatos_para_ranking):
+                if cand.cpf not in classificacoes: classificacoes[cand.cpf] = {}
+                classificacoes[cand.cpf][class_key] = i + 1
+                
+        return classificacoes
+
     def gerar_chamada(self, fator_multiplicacao: int = 1) -> ChamadaResult:
-        if not self.repo.list_candidatos():
-            raise NotFoundException("Nenhum candidato carregado.")
+        if not self.repo.list_candidatos(): raise NotFoundException("Nenhum candidato carregado.")
         view_context = self.repo.get_view_context()
-        if not view_context:
-            raise ValidationException("Nenhum curso foi selecionado para visualização do resultado. Aplique um filtro primeiro.")
+        if not view_context: raise ValidationException("Nenhum curso foi selecionado. Aplique um filtro primeiro.")
 
         chamada_num = self.repo.get_chamada_num()
         cpfs_ja_selecionados = {c.cpf for c in self.repo.list_candidatos() if c.status == StatusCandidato.SELECIONADO}
         
         candidatos_por_curso = defaultdict(list)
         for cand in self.repo.list_candidatos():
-            if cand.status == StatusCandidato.PENDENTE:
-                curso_key = (cand.campus, cand.curso, cand.turno)
-                candidatos_por_curso[curso_key].append(cand)
+            if (cand.campus == view_context['campus'] and cand.curso == view_context['curso'] and cand.turno == view_context['turno']):
+                candidatos_por_curso[(cand.campus, cand.curso, cand.turno)].append(cand)
+
+        candidatos_do_curso_completo = candidatos_por_curso.get((view_context['campus'], view_context['curso'], view_context['turno']), [])
+        classificacoes_por_cpf = self._calcular_classificacao_por_cota(candidatos_do_curso_completo)
 
         for fase in [1, 2]:
             for curso_key, candidatos_do_curso in candidatos_por_curso.items():
@@ -121,6 +151,18 @@ class ChamadaService:
                 candidatos_da_fase = [c for c in candidatos_do_curso if c.opcao == fase]
                 candidatos_ordenados = self._ordenar_por_nota(candidatos_da_fase)
                 self._processar_chamada_para_curso(curso_key, candidatos_ordenados, cpfs_ja_selecionados, fator_multiplicacao)
+
+        candidatos_contexto_final = [c for c in self.repo.list_candidatos() if c.campus == view_context['campus'] and c.curso == view_context['curso'] and c.turno == view_context['turno']]
+        for cand in candidatos_contexto_final:
+            update_data = {}
+            for cota_enum in TipoCota:
+                cota_str = cota_enum.value
+                class_key = f"class_{cota_str}"
+                if cand.cpf in classificacoes_por_cpf and class_key in classificacoes_por_cpf[cand.cpf]:
+                    update_data[class_key] = classificacoes_por_cpf[cand.cpf][class_key]
+                else:
+                    update_data[class_key] = None
+            if update_data: self.repo.update_candidato(cand.id, update_data)
 
         return self._montar_resultado_para_contexto(view_context, chamada_num, fator_multiplicacao)
 
@@ -146,14 +188,8 @@ class ChamadaService:
             if remanescentes > 0:
                 lista_prioridades = self.PRIORIDADE_PREENCHIMENTO.get(cota_alvo, [])
                 for cota_fallback in lista_prioridades:
-                    if remanescentes <= 0: 
-                        break
-                    
-                    cands_fallback = [
-                        c for c in candidatos_ordenados 
-                        if c.cota == cota_fallback and c.cpf not in cpfs_ja_selecionados
-                    ]
-                    
+                    if remanescentes <= 0: break
+                    cands_fallback = [c for c in candidatos_ordenados if c.cota == cota_fallback and c.cpf not in cpfs_ja_selecionados]
                     preenchidas_fallback = self._executar_passo(cota_alvo, remanescentes, chamada_num, cands_fallback, cpfs_ja_selecionados)
                     vagas_preenchidas_na_cota[cota_alvo] += preenchidas_fallback
                     remanescentes -= preenchidas_fallback
@@ -188,7 +224,7 @@ class ChamadaService:
         for i in range(len(self.INDICE_PARA_COTA)):
             passo_num = i + 1
             cota_alvo = self.INDICE_PARA_COTA[i]
-            lista_passo = self._filtrar_candidatos_para_passo(candidatos_ordenados, passo_num, set())
+            lista_passo = self._filtrar_candidatos_para_passo(candidatos_ordenados, passo_num, set(), ignore_status=True)
             tamanho_lista_dict[cota_alvo] = len(lista_passo)
 
         saldo_candidatos_vs_oferta_list = []
@@ -201,17 +237,16 @@ class ChamadaService:
         
         saldo_candidatos_vs_oferta_ajustado_list = self._ajustar_saldo_vagas(saldo_candidatos_vs_oferta_list)
 
-        saldo_candidatos_chamada_atual_dict = {
-            self.INDICE_PARA_COTA[i]: saldo_candidatos_vs_oferta_list[i] 
-            for i in range(len(self.INDICE_PARA_COTA))
-        }
-        saldo_candidatos_chamada_atual_ajustado_dict = {
-            self.INDICE_PARA_COTA[i]: saldo_candidatos_vs_oferta_ajustado_list[i] 
-            for i in range(len(self.INDICE_PARA_COTA))
-        }
+        saldo_candidatos_chamada_atual_dict = {self.INDICE_PARA_COTA[i]: saldo_candidatos_vs_oferta_list[i] for i in range(len(self.INDICE_PARA_COTA))}
+        saldo_candidatos_chamada_atual_ajustado_dict = {self.INDICE_PARA_COTA[i]: saldo_candidatos_vs_oferta_ajustado_list[i] for i in range(len(self.INDICE_PARA_COTA))}
+
+        candidatos_do_curso_para_retorno = [
+            c for c in self.repo.list_candidatos()
+            if c.campus == campus and c.curso == curso and c.turno == turno and c.chamada == chamada_num and c.status == StatusCandidato.SELECIONADO
+        ]
 
         return ChamadaResult(
-            candidatos_chamados=candidatos_chamados_no_contexto,
+            candidatos_chamados=candidatos_do_curso_para_retorno,
             vagas_selecionadas=dict(vagas_selecionadas_dict),
             saldo_remanescente_proxima_chamada=saldo_remanescente_obj.model_dump(),
             tamanho_lista=tamanho_lista_dict,
@@ -270,6 +305,36 @@ class ChamadaService:
     def gerar_relatorio_chamada_completo(self, chamada_num: int) -> List[Candidato]:
         candidatos_relatorio = [c for c in self.repo.list_candidatos() if c.chamada == chamada_num]
         return self._ordenar_por_nota(candidatos_relatorio)
+    
+    def gerar_relatorio_geral_por_curso(self) -> List[Candidato]:
+        """
+        Gera um relatório com TODOS os candidatos de um curso/turno (contexto),
+        com suas respectivas classificações calculadas em todas as cotas.
+        """
+        view_context = self.repo.get_view_context()
+        if not view_context:
+            raise ValidationException("Nenhum curso foi selecionado. Aplique um filtro primeiro.")
+
+        candidatos_do_curso = [
+            c for c in self.repo.list_candidatos()
+            if c.campus == view_context['campus'] and
+               c.curso == view_context['curso'] and
+               c.turno == view_context['turno']
+        ]
+
+        if not candidatos_do_curso:
+            raise NotFoundException("Nenhum candidato encontrado para o filtro atual.")
+
+        classificacoes_por_cpf = self._calcular_classificacao_por_cota(candidatos_do_curso)
+
+        for cand in candidatos_do_curso:
+            if cand.cpf in classificacoes_por_cpf:
+                update_data = classificacoes_por_cpf[cand.cpf]
+                self.repo.update_candidato(cand.id, update_data)
+        
+        candidatos_atualizados = [self.repo.get_candidato(c.id) for c in candidatos_do_curso]
+
+        return self._ordenar_por_nota(candidatos_atualizados)
 
     def reset_sistema(self) -> None:
         self.repo.reset()

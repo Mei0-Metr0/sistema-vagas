@@ -23,6 +23,17 @@ class Candidato(CandidatoBase):
     status: StatusCandidato = StatusCandidato.PENDENTE
     chamada: Optional[int] = None
     opcao: int
+    # Colunas para classificação
+    class_AC: Optional[int] = None
+    class_LI_EP: Optional[int] = None
+    class_LI_PCD: Optional[int] = None
+    class_LI_Q: Optional[int] = None
+    class_LI_PPI: Optional[int] = None
+    class_LB_EP: Optional[int] = None
+    class_LB_PCD: Optional[int] = None
+    class_LB_Q: Optional[int] = None
+    class_LB_PPI: Optional[int] = None
+
 
     class Config:
         from_attributes = True

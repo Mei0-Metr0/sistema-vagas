@@ -61,19 +61,29 @@ const CallGenerationSection = () => {
         }));
 
         const transformedCandidates = (backendResponse.candidatos_chamados || []).map(cand => ({
-          'ID': cand.id,
-          'Campus': cand.campus || '',
-          'Curso': cand.curso || '',
-          'Turno': cand.turno || '',
-          'CPF': cand.cpf,
-          'Nome': cand.nome || '',
-          'E-mail': cand.email || '',
-          'Nota Final': cand.nota_final,
-          'Cota do candidato': cand.cota,
-          'Vaga Selecionada': cand.vaga_selecionada,
-          'Status': cand.status,
-          'Opção': cand.opcao,
-          'Chamada': cand.chamada
+            'ID': cand.id,
+            'Campus': cand.campus || '',
+            'Curso': cand.curso || '',
+            'Turno': cand.turno || '',
+            'CPF': cand.cpf,
+            'Nome': cand.nome || '',
+            'E-mail': cand.email || '',
+            'Nota Final': cand.nota_final,
+            'Cota do candidato': cand.cota,
+            'Vaga Selecionada': cand.vaga_selecionada,
+            'Status': cand.status,
+            'Opção': cand.opcao,
+            'Chamada': cand.chamada,
+
+            'Class_AC': cand.class_AC,
+            'Class_LI_EP': cand.class_LI_EP,
+            'Class_LI_PCD': cand.class_LI_PCD,
+            'Class_LI_Q': cand.class_LI_Q,
+            'Class_LI_PPI': cand.class_LI_PPI,
+            'Class_LB_EP': cand.class_LB_EP,
+            'Class_LB_PCD': cand.class_LB_PCD,
+            'Class_LB_Q': cand.class_LB_Q,
+            'Class_LB_PPI': cand.class_LB_PPI,
         }));
 
         dispatch(setCandidates(transformedCandidates));
