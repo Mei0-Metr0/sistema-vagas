@@ -4,12 +4,9 @@ from domain.entities import Candidato, Vagas
 class InMemoryRepository:
     def __init__(self):
         self.candidatos: Dict[int, Candidato] = {}
-        # Vagas agora é um dicionário para armazenar vagas por curso
-        # A chave é uma tupla (campus, curso, turno)
         self.vagas_por_curso: Dict[Tuple[str, str, str], Vagas] = {}
         self.vagas_originais_por_curso: Dict[Tuple[str, str, str], Vagas] = {}
         
-        # Contexto de visualização atual do usuário
         self.view_context: Optional[Dict[str, str]] = None
         
         self.chamada_num: int = 1
@@ -46,7 +43,7 @@ class InMemoryRepository:
     def update_candidato(self, candidato_id: int, candidato_update: dict) -> Optional[Candidato]:
         if candidato_id not in self.candidatos:
             return None
-        # Pydantic V2 usa model_copy para criar uma cópia mutável e model_dump para serializar
+
         current_data = self.candidatos[candidato_id].model_dump()
         current_data.update(candidato_update)
         self.candidatos[candidato_id] = Candidato(**current_data)

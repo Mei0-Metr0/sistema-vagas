@@ -9,8 +9,10 @@ import VacanciesTable from '../tables/VacanciesTable';
 import { setCallData } from '../../store/slices/callSlice';
 import { setCandidates, clearNonApprovedCpfs } from '../../store/slices/candidatesSlice';
 import InfoLegend from '../ui/InfoLegend';
+import CallStory from '../story/CallStory';
 
 const CallGenerationSection = () => {
+
   const { request, loading, error: apiErrorHook } = useApi();
   const [status, setStatus] = useState({ message: '', type: '' });
 
@@ -198,6 +200,8 @@ const CallGenerationSection = () => {
       {shouldShowResultsSection && (
         <div className="mt-4">
           <h4 className="mb-2 me-3 border-bottom pb-4">RESULTADOS DA {currentCall}ª CHAMADA</h4>
+          
+          <CallStory />
 
           {candidates.length === 0 && (
             <Alert message="Nenhum candidato foi selecionado nesta chamada." type="info" />
