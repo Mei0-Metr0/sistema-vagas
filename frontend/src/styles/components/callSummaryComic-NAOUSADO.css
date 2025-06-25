@@ -80,7 +80,7 @@
 .panel-text {
   font-size: 0.9rem;
   color: #6c757d;
-  flex-grow: 1; /* Faz o texto ocupar o espaço disponível */
+  flex-grow: 1;
   line-height: 1.5;
 }
 
@@ -94,7 +94,7 @@
   background-color: #f8f9fa;
   padding: 8px;
   border-radius: 6px;
-  margin-top: auto; /* Empurra para o final do card */
+  margin-top: auto;
 }
 
 .panel-data strong {

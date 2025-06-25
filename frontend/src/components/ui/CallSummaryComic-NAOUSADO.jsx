@@ -2,7 +2,6 @@ import { useSelector } from 'react-redux';
 import '../../styles/components/callSummaryComic.css';
 import { ChatRightQuote, ArrowRight, CheckCircleFill, ExclamationTriangleFill, HourglassSplit } from 'react-bootstrap-icons';
 
-// Mapeamento para nomes completos das cotas
 const COTA_NAMES = {
   AC: 'Ampla Concorrência (AC)',
   LI_EP: 'Escola Pública (LI_EP)',
@@ -18,7 +17,6 @@ const COTA_NAMES = {
 const CallSummaryComic = () => {
   const { balance, vacanciesInfo } = useSelector(state => state.call);
 
-  // Combina os dados de 'balance' e 'vacanciesInfo' em um único array para facilitar o uso
   const summaryData = balance.map(b => {
     const vacancyInfo = vacanciesInfo.find(v => v.Cota === b.Cota) || {};
     return {

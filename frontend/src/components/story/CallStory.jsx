@@ -3,6 +3,8 @@ import { useSelector } from 'react-redux';
 import { CheckCircleFill, ExclamationTriangleFill, HourglassSplit, InfoCircleFill, ChevronDown, ChevronUp, LightbulbFill, Diagram3 } from 'react-bootstrap-icons';
 import '../../styles/components/callStory.css';
 
+import infoImage from '../../assets/info.png';
+
 const COTA_NAMES = { AC: 'Ampla Concorrência', LI_EP: 'Escola Pública', LI_PCD: 'Escola Pública + PCD', LI_Q: 'Escola Pública + Quilombola', LI_PPI: 'Escola Pública + PPI', LB_EP: 'Baixa Renda', LB_PCD: 'Baixa Renda + PCD', LB_Q: 'Baixa Renda + Quilombola', LB_PPI: 'Baixa Renda + PPI' };
 const HIERARCHY_ORDER = ['AC', 'LI_EP', 'LI_PCD', 'LI_Q', 'LI_PPI', 'LB_EP', 'LB_PCD', 'LB_Q', 'LB_PPI'];
 
@@ -99,8 +101,8 @@ const CallStory = () => {
         const slides = [];
 
         // --- Slides 1 e 2: Introdutórios ---
-        slides.push( <div key="principio-fundamental" className="story-panel status-neutral"> <div className="story-panel-header"> <LightbulbFill className="story-panel-icon" /> <h5 className="story-panel-title">Princípio Fundamental: Nenhuma Vaga Ociosa</h5> </div> <div className="story-panel-body"> <p className="story-text"> O objetivo do sistema é preencher o máximo de vagas possível. Para isso, ele segue uma regra clara: se uma cota específica não tem candidatos suficientes, as vagas não preenchidas são transferidas para cotas mais gerais, garantindo o aproveitamento total. </p> </div> </div> );
-        slides.push( <div key="efeito-cascata" className="story-panel status-neutral"> <div className="story-panel-header"> <Diagram3 className="story-panel-icon" /> <h5 className="story-panel-title">O Processo: Efeito Cascata</h5> </div> <div className="story-panel-body"> <p className="story-text"> Pense nas cotas como uma cascata invertida, das mais específicas (como Baixa Renda + PPI) para a mais ampla (Ampla Concorrência). O sistema tenta preencher as vagas de baixo para cima. A "dívida" de vagas de uma cota inferior é sempre repassada para a superior, que tenta quitá-la com seus candidatos excedentes. </p> </div> </div> );
+        slides.push(<div key="principio-fundamental" className="story-panel status-neutral"> <div className="story-panel-header"> <LightbulbFill className="story-panel-icon" /> <h5 className="story-panel-title">Princípio Fundamental: Nenhuma Vaga Ociosa</h5> </div> <div className="story-panel-body"> <p className="story-text"> O objetivo do sistema é preencher o máximo de vagas possível. Para isso, ele segue uma regra clara: se uma cota específica não tem candidatos suficientes, as vagas não preenchidas são transferidas para cotas mais gerais, garantindo o aproveitamento total. </p> </div> </div>);
+        slides.push(<div key="efeito-cascata" className="story-panel status-neutral"> <div className="story-panel-header"> <Diagram3 className="story-panel-icon" /> <h5 className="story-panel-title">O Processo: Efeito Cascata</h5> </div> <div className="story-panel-body"> <p className="story-text"> Pense nas cotas como uma cascata invertida, das mais específicas (como Baixa Renda + PPI) para a mais ampla (Ampla Concorrência). O sistema tenta preencher as vagas de baixo para cima. A "dívida" de vagas de uma cota inferior é sempre repassada para a superior, que tenta quitá-la com seus candidatos excedentes. </p> </div> </div>);
 
         // --- Dados para os slides ---
         const summaryData = HIERARCHY_ORDER.map(cota => {
@@ -132,7 +134,7 @@ const CallStory = () => {
                 if (saldoAjustado === 0) { storyText += ` Felizmente, este déficit foi coberto por candidatos excedentes de cotas mais gerais (acima na hierarquia da cascata).`; }
                 else { storyText += ` Esse déficit foi então "empurrado" para a próxima cota na hierarquia, para que ela tentasse cobri-lo.`; }
             }
-            return ( <div key={cota} className={`story-panel ${statusClass}`}> <div className="story-panel-header"><Icon className="story-panel-icon" /> <h6 className="story-panel-title">{COTA_NAMES[cota] || cota}</h6> </div> <div className="story-panel-body"> <p className="story-title">{title}</p> <p className="story-text" dangerouslySetInnerHTML={{ __html: storyText }}></p> </div> </div> );
+            return (<div key={cota} className={`story-panel ${statusClass}`}> <div className="story-panel-header"><Icon className="story-panel-icon" /> <h6 className="story-panel-title">{COTA_NAMES[cota] || cota}</h6> </div> <div className="story-panel-body"> <p className="story-title">{title}</p> <p className="story-text" dangerouslySetInnerHTML={{ __html: storyText }}></p> </div> </div>);
         });
         slides.push(...quotaSlides);
 
@@ -159,6 +161,15 @@ const CallStory = () => {
             </div>
             {isOpen && (
                 <div className="story-body">
+                    <div className="info-container-wrapper">
+                        <div className="info-hover-container">
+                            <InfoCircleFill className="info-icon" />
+                            <div className="hover-image-popup">
+                                <img src={infoImage} alt="Fluxograma do processo de chamada" />
+                                <figcaption className="image-caption">Prioridade para o preenchimento das vagas</figcaption>
+                            </div>
+                        </div>
+                    </div>
                     <div className="slide-content" key={currentSlide}>{slidesContent[currentSlide]}</div>
                     <div className="story-navigation">
                         <button onClick={goToPreviousSlide} disabled={currentSlide === 0} className="btn-app btn-app-secondary">Anterior</button>
