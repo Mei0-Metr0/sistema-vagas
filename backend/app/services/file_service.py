@@ -35,7 +35,7 @@ class FileService:
             df.columns = [FileService._normalize_column_name(col) for col in df.columns]
             
             required_columns = [
-                'cpf', 'nota_final', 'cota_do_candidato', 'opcao'
+                'cpf', 'nota_final', 'cota_do_candidato', 'opcao_de_inscricao'
             ]
 
             if not all(col in df.columns for col in required_columns):
@@ -62,11 +62,11 @@ class FileService:
         candidatos = []
         for row in data:
             try:
-                opcao_str = str(row.get('opcao', ''))
+                opcao_str = str(row.get('opcao_de_inscricao', ''))
 
                 match = re.search(r'\d+', opcao_str)
                 if not match:
-                    raise ValueError(f"O valor na coluna 'opcao' ('{opcao_str}') não contém um número válido. Verifique o formato.")
+                    raise ValueError(f"O valor na coluna 'opcao_de_inscricao' ('{opcao_str}') não contém um número válido. Verifique o formato.")
                 opcao_int = int(match.group(0))
 
                 candidatos.append(CandidatoCreate(
